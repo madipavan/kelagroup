@@ -3,8 +3,10 @@ import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:kelawin/Models/billmodel.dart';
 import 'package:kelawin/Models/khata_model.dart';
+import 'package:kelawin/Models/multikissan_model.dart';
 import 'package:kelawin/Models/transaction_model.dart';
 import 'package:kelawin/Models/user_model.dart';
 import 'package:kelawin/presentation/khatabook/page/print_Transactions.dart';
@@ -25,6 +27,7 @@ class PrintDocuments {
     color,
     invoiceno,
   ) async {
+    print(invoiceno);
     Apputils().loader(context);
     //fetching bill data
     BillModel? billdata = await GetBillFromServer().getbill(invoiceno);
@@ -202,17 +205,22 @@ class PrintDocuments {
               pw.Text("Print Date",
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(width: 10),
-              pw.Text("22-22-213"),
+              pw.Text(DateFormat('dd-MM-yyyy').format(DateTime.now())),
               pw.SizedBox(width: 50),
               pw.Text("From Date",
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(width: 10),
-              pw.Text("22-22-213"),
+              pw.Text(DateFormat('dd-MM-yyyy')
+                  .format((DateFormat("dd-MM-yyyy").parse(bills[0].date)))
+                  .toString()),
               pw.SizedBox(width: 50),
               pw.Text("To Date",
                   style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
               pw.SizedBox(width: 10),
-              pw.Text("22-22-213"),
+              pw.Text(DateFormat('dd-MM-yyyy')
+                  .format((DateFormat("dd-MM-yyyy")
+                      .parse(bills[bills.length - 1].date)))
+                  .toString()),
             ]),
             pw.SizedBox(height: 10),
             pw.Text("MANDI TAX REPORT",
@@ -256,11 +264,11 @@ Future<List<Map>> _getNarrationsForTransaction(
       BillModel? bill =
           await GetBillFromServer().getbill(transactionsList[j].billno);
       if (bill!.isMultikissan) {
-        int totalLungar = 0;
-        for (var element in bill.multiKissanList!) {
-          totalLungar += int.parse(element["lungar"]);
+        double totalLungar = 0;
+        for (MultikissanModel element in bill.multiKissanList!) {
+          totalLungar += element.lungar;
         }
-        bill.multiKissanList![0]["lungar"];
+        bill.multiKissanList![0].lungar;
         narrations.insert(j, {
           "L": totalLungar,
           "Wt": bill.nettweight,

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kelawin/Models/billmodel.dart';
+import 'package:kelawin/Models/multikissan_model.dart';
 
 class GetBillService {
   final firebase = FirebaseFirestore.instance;
@@ -17,7 +18,11 @@ class GetBillService {
             .doc(bill.docs[0].id)
             .collection("multikissan_names")
             .get();
-        return BillModel.fromJson(bill.docs[0], subCollectionBill);
+        List<MultikissanModel> temp = [];
+        for (var element in subCollectionBill.docs) {
+          temp.add(MultikissanModel.toJson(element.data()));
+        }
+        return BillModel.fromJson(bill.docs[0], temp);
       } else {
         return BillModel.fromJson(bill.docs[0], null);
       }
@@ -33,8 +38,10 @@ class GetBillService {
   Future<List<BillModel>> getAllbills() async {
     List<BillModel> allBills = [];
     try {
-      QuerySnapshot<Map<String, dynamic>> bills =
-          await firebase.collection("Bills").get();
+      QuerySnapshot<Map<String, dynamic>> bills = await firebase
+          .collection("Bills")
+          .orderBy("bill_no", descending: true)
+          .get();
 
       for (int i = 0; i < bills.docs.length; i++) {
         if (bills.docs[i]["ismultikissan"]) {
@@ -43,7 +50,11 @@ class GetBillService {
               .doc(bills.docs[i].id)
               .collection("multikissan_names")
               .get();
-          allBills.add(BillModel.fromJson(bills.docs[i], subCollectionBill));
+          List<MultikissanModel> temp = [];
+          for (var element in subCollectionBill.docs) {
+            temp.add(MultikissanModel.toJson(element.data()));
+          }
+          allBills.add(BillModel.fromJson(bills.docs[i], temp));
         } else {
           allBills.add(BillModel.fromJson(bills.docs[i], null));
         }

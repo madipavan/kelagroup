@@ -7,6 +7,7 @@ import 'package:form_validator/form_validator.dart';
 import 'package:intl/intl.dart';
 import 'package:kelawin/Models/billmodel.dart';
 import 'package:kelawin/Models/khata_model.dart';
+import 'package:kelawin/Models/multikissan_model.dart';
 import 'package:kelawin/Models/transaction_model.dart';
 import 'package:kelawin/Models/user_model.dart';
 import 'package:kelawin/presentation/khatabook/widget/make_payment.dart';
@@ -775,11 +776,11 @@ Future<List<Map>> _getNarrations(
       BillModel? bill =
           await GetBillFromServer().getbill(transactionsList[j].billno);
       if (bill!.isMultikissan) {
-        int totalLungar = 0;
-        for (var element in bill.multiKissanList!) {
-          totalLungar += int.parse(element["lungar"]);
+        double totalLungar = 0;
+        for (MultikissanModel element in bill.multiKissanList!) {
+          totalLungar += element.lungar;
         }
-        bill.multiKissanList![0]["lungar"];
+
         narrations.insert(j, {
           "L": totalLungar,
           "Wt": bill.nettweight,

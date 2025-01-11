@@ -129,6 +129,7 @@ class Apputils {
         context: context,
         builder: (context) {
           return AlertDialog(
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
             ),
@@ -235,10 +236,11 @@ class Apputils {
         builder: (context) {
           return Center(
               child: LoadingAnimationWidget.discreteCircle(
-                  color: Colors.red,
-                  size: 50,
-                  secondRingColor: Colors.white,
-                  thirdRingColor: Colors.blueAccent));
+            color: const Color(0xff0073dd),
+            size: 50,
+            secondRingColor: const Color(0xff005bb5),
+            thirdRingColor: const Color(0xff4fc3f7),
+          ));
         });
   }
 
@@ -304,5 +306,39 @@ class Apputils {
             ),
           );
         });
+  }
+
+  //calender
+  Future showCalender(BuildContext context, DateTime initialDate) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: initialDate,
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2101),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+                appBarTheme:
+                    const AppBarTheme(backgroundColor: Color(0xff0073dd)),
+                colorScheme: const ColorScheme.light(
+                  inversePrimary: Colors.red,
+                  surface: Colors.white,
+                  primary: Color(0xff0073dd), // header background color
+                  onPrimary: Colors.white, // header text color
+                  onSurface: Colors.black, // body text color
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.black, // button text color
+                  ),
+                )), // This will change to light theme.
+            child: child!,
+          );
+        });
+    if (picked != null && picked != DateTime.now()) {
+      return picked;
+    } else {
+      return DateTime.now();
+    }
   }
 }

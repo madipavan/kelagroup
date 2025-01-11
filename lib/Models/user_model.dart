@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserModel {
   String name;
   String password;
@@ -27,20 +25,19 @@ class UserModel {
     required this.userId,
   });
 
-  factory UserModel.fromJson(QuerySnapshot<Map<String, dynamic>> user) {
+  factory UserModel.fromJson(Map user) {
     return UserModel(
-      name: user.docs[0]["name"],
-      password: user.docs[0]["password"],
-      address: user.docs[0]["address"],
-      city: user.docs[0]["city"],
-      company:
-          user.docs[0]["role"] == "kissan" ? null : user.docs[0]["company"],
-      email: user.docs[0]["email"],
-      phone: user.docs[0]["phone"],
-      pincode: user.docs[0]["pincode"],
-      role: user.docs[0]["role"],
-      state: user.docs[0]["state"],
-      userId: user.docs[0]["${user.docs[0]["role"]}_id"],
+      name: user["name"],
+      password: user["password"],
+      address: user["address"],
+      city: user["city"],
+      company: user["role"] == "kissan" ? "" : user["company"],
+      email: user["email"],
+      phone: user["phone"],
+      pincode: user["pincode"],
+      role: user["role"],
+      state: user["state"],
+      userId: user["${user["role"]}_id"],
     );
   }
 }

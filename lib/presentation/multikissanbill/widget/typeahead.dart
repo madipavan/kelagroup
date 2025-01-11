@@ -26,7 +26,7 @@ class Typeahead extends StatelessWidget {
       onSelected: (dynamic val) {
         typecontroller.text = val["name"];
         Provider.of<MultiKissanPro>(context, listen: false).multikissan[index]
-            ["kissan_id"] = val["kissan_id"];
+            ["user_id"] = val["kissan_id"];
       },
       suggestionsCallback: (search) async {
         return await _getdata(search, "kissan");

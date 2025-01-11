@@ -3,9 +3,14 @@ import 'package:provider/provider.dart';
 
 import '../../../viewmodel/multikissanbillcalc/multi_grandtotal.dart';
 
-class GrandtotalMultikissan extends StatelessWidget {
+class GrandtotalMultikissan extends StatefulWidget {
   const GrandtotalMultikissan({super.key});
 
+  @override
+  State<GrandtotalMultikissan> createState() => _GrandtotalMultikissanState();
+}
+
+class _GrandtotalMultikissanState extends State<GrandtotalMultikissan> {
   @override
   Widget build(BuildContext context) {
     final Height = MediaQuery.of(context).size.height;
@@ -13,7 +18,7 @@ class GrandtotalMultikissan extends StatelessWidget {
     return Consumer<MultiGrandtotal>(
       builder: (context, value, child) => Container(
         // margin: EdgeInsets.only(top: Width * 0.02),
-        height: Height * 0.35,
+        height: Height * 0.4,
         width: Width * 0.75,
         color: Colors.white,
         child: Row(
@@ -112,7 +117,9 @@ class GrandtotalMultikissan extends StatelessWidget {
                                     color: Colors.black87),
                                 value: value.hammalipercent,
                                 onChanged: (int? newValue) {
-                                  value.hammalipercent = newValue!;
+                                  setState(() {
+                                    value.hammalipercent = newValue!;
+                                  });
                                 },
                                 items: <int>[
                                   5,
@@ -182,7 +189,9 @@ class GrandtotalMultikissan extends StatelessWidget {
                                     color: Colors.black87),
                                 value: value.commissionpercent,
                                 onChanged: (int? newValue) {
-                                  value.commissionpercent = newValue!;
+                                  setState(() {
+                                    value.commissionpercent = newValue!;
+                                  });
                                 },
                                 items: <int>[
                                   5,
@@ -252,7 +261,9 @@ class GrandtotalMultikissan extends StatelessWidget {
                                     color: Colors.black87),
                                 value: value.mtaxpercent,
                                 onChanged: (int? newValue) {
-                                  value.mtaxpercent = newValue!;
+                                  setState(() {
+                                    value.mtaxpercent = newValue!;
+                                  });
                                 },
                                 items: <int>[
                                   1,
@@ -366,6 +377,38 @@ class GrandtotalMultikissan extends StatelessWidget {
                             SizedBox(
                               width: Width * 0.01,
                             ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 229, 241, 248),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              height: Height * 0.035,
+                              width: Width * 0.03,
+                              child: DropdownButton(
+                                padding: EdgeInsets.all(Width * 0.0025),
+                                iconSize: Width * 0.01,
+                                underline: const Text(""),
+                                isExpanded: true,
+                                dropdownColor: Colors.white,
+                                style: TextStyle(
+                                    fontFamily: "sans",
+                                    fontSize: Width * 0.01,
+                                    color: Colors.black87),
+                                value: value.ot,
+                                onChanged: (int? newValue) {
+                                  setState(() {
+                                    value.ot = newValue!;
+                                  });
+                                },
+                                items: <int>[40, 50, 60, 70, 80, 90]
+                                    .map<DropdownMenuItem<int>>((int value) {
+                                  return DropdownMenuItem<int>(
+                                    value: value,
+                                    child: Text(value.toString()),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -419,7 +462,9 @@ class GrandtotalMultikissan extends StatelessWidget {
                                     color: Colors.black87),
                                 value: value.tcspercent,
                                 onChanged: (int? newValue) {
-                                  value.tcspercent = newValue!;
+                                  setState(() {
+                                    value.tcspercent = newValue!;
+                                  });
                                 },
                                 items: <int>[
                                   0,

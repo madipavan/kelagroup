@@ -171,7 +171,7 @@ class BillandKhataAmountAdding {
           //khata kelagroup
           QuerySnapshot kelagroupdoc = await firebase
               .collection("kelagroup_khata")
-              .where("kelagroup_id", isEqualTo: element["kelagroup_id"])
+              .where("kelagroup_id", isEqualTo: element["user_id"])
               .get();
 
           final kelagroupdocId = kelagroupdoc.docs[0].id;
@@ -214,7 +214,7 @@ class BillandKhataAmountAdding {
           //kissan khata
           QuerySnapshot kissandoc = await firebase
               .collection("kissan_khata")
-              .where("kissan_id", isEqualTo: element["kissan_id"])
+              .where("kissan_id", isEqualTo: element["user_id"])
               .get();
 
           final kissandocId = kissandoc.docs[0].id;

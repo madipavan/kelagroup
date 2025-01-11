@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kelawin/Models/multikissan_model.dart';
 
 class BillModel {
   final int invoiceno;
@@ -27,7 +28,8 @@ class BillModel {
   final double? wastagewt;
   final double? gross;
   final double? tare;
-  final String? lungar;
+  final double? lungar;
+  final double? wtDiff;
   final double nettweight;
   final double kissanamt;
   final double hammali;
@@ -36,13 +38,13 @@ class BillModel {
   final int commissionpercent;
   final double mtax;
   final int mtaxpercent;
-  final double ot;
+  final int ot;
   final double tcs;
   final double subtotal;
   final double grandtotal;
   final String adminname;
   final bool isMultikissan;
-  final List<QueryDocumentSnapshot<Map<String, dynamic>>>? multiKissanList;
+  final List<MultikissanModel>? multiKissanList;
   final String note;
 
   BillModel(
@@ -73,6 +75,7 @@ class BillModel {
       this.gross,
       this.tare,
       this.lungar,
+      this.wtDiff,
       required this.nettweight,
       required this.kissanamt,
       required this.hammali,
@@ -91,7 +94,7 @@ class BillModel {
       required this.note});
 
   factory BillModel.fromJson(QueryDocumentSnapshot<Map<String, dynamic>> bill,
-      QuerySnapshot<Map<String, dynamic>>? kissanList) {
+      List<MultikissanModel>? kissanList) {
     if (bill["ismultikissan"]) {
       return BillModel(
           invoiceno: bill["bill_no"],
@@ -120,7 +123,10 @@ class BillModel {
           grandtotal: bill["grandtotal"],
           adminname: bill["adminname"],
           isMultikissan: bill["ismultikissan"],
-          multiKissanList: kissanList!.docs,
+          wtDiff: bill["wtDiff"],
+          gross: bill["gross"],
+          tare: bill["tare"],
+          multiKissanList: kissanList,
           note: bill["note"]);
     }
     return BillModel(

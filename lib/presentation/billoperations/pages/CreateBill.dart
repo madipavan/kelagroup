@@ -10,12 +10,13 @@ import 'package:intl/intl.dart';
 import 'package:kelawin/presentation/multikissanbill/page/Multi_kissan.dart';
 import 'package:kelawin/presentation/multikissanbill/provider/multi_kissan_pro.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/grandtotal_multikissan.dart';
+import 'package:kelawin/presentation/multikissanbill/widget/wtdiff_table.dart';
 import 'package:kelawin/utils/apputils.dart';
 import 'package:kelawin/viewmodel/calcWidgetVisibilty/grandtotalvisible_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../viewmodel/bill_viewmodel/bill_khata_adding_viewmodel.dart';
-import '../viewmodel/multikissanbillcalc/multi_grandtotal.dart';
+import '../../../viewmodel/bill_viewmodel/bill_khata_adding_viewmodel.dart';
+import '../../../viewmodel/multikissanbillcalc/multi_grandtotal.dart';
 
 final _formkey = GlobalKey<FormState>();
 int currentindex = 0;
@@ -41,7 +42,13 @@ String kissanstate = "";
 String kissancity = "";
 String kissanaddress = "";
 
-String ras = "";
+TextEditingController rasController = TextEditingController();
+//multicalc
+TextEditingController multiGrossController = TextEditingController();
+TextEditingController multiTareController = TextEditingController();
+TextEditingController multiAreaWtController = TextEditingController();
+TextEditingController multiWtDiffController = TextEditingController();
+//multicalc
 String board = "";
 String motorno = "";
 String bhuktanpk = "";
@@ -56,14 +63,14 @@ double wastageval = 6;
 String dropdownValue = "Loose";
 String _patiunit = "Percent";
 String _dandaunit = "Percent";
-String _wastageunit = "Percent";
+String _wastageunit = "KG";
 String invoicecolor = "Red";
 
 String parchavillage = "";
 double bhav = 0;
 double gross = 0;
 double tare = 0;
-String lungar = "";
+double lungar = 0;
 
 double nettweight = 0;
 double kissanamt = 0;
@@ -71,7 +78,7 @@ double hammali = 0;
 double commission = 0;
 double mtax = 0;
 double subtotal = 0;
-double ot = 40;
+int ot = 40;
 double tcs = 0;
 double grandtotal = 0;
 
@@ -159,7 +166,6 @@ class _CreateBillState extends State<CreateBill> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 40, left: 60),
-                    height: Height * 2,
                     width: Width * 0.8,
                     color: Colors.white,
                     child: Column(
@@ -1179,10 +1185,8 @@ class _CreateBillState extends State<CreateBill> {
                                       .minLength(1)
                                       .maxLength(45)
                                       .build(),
+                                  controller: rasController,
                                   keyboardType: TextInputType.number,
-                                  onChanged: (val) {
-                                    ras = val.toString().toLowerCase();
-                                  },
                                   cursorColor: Colors.black87,
                                   decoration: InputDecoration(
                                       contentPadding:
@@ -1354,8 +1358,8 @@ class _CreateBillState extends State<CreateBill> {
                           children: [
                             Container(
                               color: Colors.white,
-                              width: Width * 0.8,
-                              height: Height * 0.7,
+                              width: Width * 0.8, //working on this container
+
                               margin: EdgeInsets.only(top: Width * 0.02),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1383,11 +1387,10 @@ class _CreateBillState extends State<CreateBill> {
                                             Consumer<GrandtotalVisibleProvider>(
                                           builder: (context, value, child) =>
                                               Switch(
-                                                  activeTrackColor:
-                                                      Colors.black87,
-                                                  activeColor:
-                                                      const Color.fromARGB(
-                                                          255, 0, 255, 8),
+                                                  activeColor: const Color(
+                                                      0xFF2196F3), // Blue for the knob
+                                                  activeTrackColor: const Color(
+                                                      0xFFBBDEFB), // Light Blue for the track
                                                   value: value.issinglekissan,
                                                   onChanged: (val) {
                                                     setState(() {
@@ -1425,8 +1428,10 @@ class _CreateBillState extends State<CreateBill> {
                                             Consumer<GrandtotalVisibleProvider>(
                                           builder: (context, value, child) =>
                                               Switch(
-                                                  activeTrackColor: Colors.red,
-                                                  activeColor: Colors.black87,
+                                                  activeColor: const Color(
+                                                      0xFF2196F3), // Blue for the knob
+                                                  activeTrackColor:
+                                                      const Color(0xFFBBDEFB),
                                                   value: value.ismultikissan,
                                                   onChanged: (val) {
                                                     setState(() {
@@ -1445,12 +1450,16 @@ class _CreateBillState extends State<CreateBill> {
                                             Visibility(
                                           visible: value.ismultikissan,
                                           child: SizedBox(
-                                            height: Height * 0.04,
-                                            width: Width * 0.045,
                                             child: Consumer<MultiKissanPro>(
                                               builder: (context, value,
                                                       child) =>
                                                   OutlinedButton(
+                                                      style: OutlinedButton
+                                                          .styleFrom(
+                                                              backgroundColor:
+                                                                  Colors.blue,
+                                                              shape:
+                                                                  const CircleBorder()),
                                                       onPressed: () {
                                                         setState(() {
                                                           value.addintolist();
@@ -1476,9 +1485,13 @@ class _CreateBillState extends State<CreateBill> {
                                                           ));
                                                         });
                                                       },
-                                                      child: const Icon(
-                                                        Icons.add,
-                                                        color: Colors.black,
+                                                      child: const Padding(
+                                                        padding:
+                                                            EdgeInsets.all(8.0),
+                                                        child: Icon(
+                                                          Icons.add,
+                                                          color: Colors.white,
+                                                        ),
                                                       )),
                                             ),
                                           ),
@@ -1505,1587 +1518,1300 @@ class _CreateBillState extends State<CreateBill> {
                                         child:
                                             Consumer<GrandtotalVisibleProvider>(
                                           builder: (context, value, child) =>
-                                              Visibility(
-                                            visible: value.issinglekissan,
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    Container(
-                                                      height: Height * 0.1,
-                                                      width: Width * 0.08,
-                                                      color: Colors.white,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Village",
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    "sans",
-                                                                fontSize:
-                                                                    Width *
-                                                                        0.008,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.005,
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.05,
-                                                            width: Width * 0.07,
-                                                            child:
-                                                                TextFormField(
-                                                              validator:
-                                                                  ValidationBuilder()
-                                                                      .minLength(
-                                                                          1)
-                                                                      .maxLength(
-                                                                          45)
-                                                                      .build(),
-                                                              onChanged: (val) {
-                                                                parchavillage = val
-                                                                    .toString()
-                                                                    .toLowerCase();
-                                                              },
-                                                              cursorColor:
-                                                                  Colors
-                                                                      .black87,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      contentPadding: EdgeInsets.all(
-                                                                          Width *
-                                                                              0.005),
-                                                                      hoverColor: Colors
-                                                                          .grey
-                                                                          .shade300,
-                                                                      hintText:
-                                                                          "Village",
-                                                                      hintStyle:
-                                                                          TextStyle(
-                                                                        fontFamily:
-                                                                            "sans",
-                                                                        fontSize:
-                                                                            Width *
-                                                                                0.01,
-                                                                      ),
-                                                                      hintFadeDuration: const Duration(
-                                                                          seconds:
-                                                                              1),
-                                                                      prefixIcon:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .numbers,
-                                                                        size: Width *
-                                                                            0.015,
-                                                                      ),
-                                                                      fillColor: const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          229,
-                                                                          241,
-                                                                          248),
-                                                                      filled:
-                                                                          true,
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                          borderSide: BorderSide(
-                                                                              width:
-                                                                                  1,
-                                                                              color: Colors
-                                                                                  .grey)),
-                                                                      focusedBorder:
-                                                                          const OutlineInputBorder(
-                                                                              borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      height: Height * 0.1,
-                                                      width: Width * 0.08,
-                                                      color: Colors.white,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Bhav",
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    "sans",
-                                                                fontSize:
-                                                                    Width *
-                                                                        0.008,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.005,
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.05,
-                                                            width: Width * 0.07,
-                                                            child:
-                                                                TextFormField(
-                                                              validator:
-                                                                  ValidationBuilder()
-                                                                      .minLength(
-                                                                          1)
-                                                                      .maxLength(
-                                                                          45)
-                                                                      .build(),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              onChanged: (val) {
-                                                                setState(() {
-                                                                  bhav = double
-                                                                      .parse(
-                                                                          val);
-                                                                });
-                                                              },
-                                                              cursorColor:
-                                                                  Colors
-                                                                      .black87,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      contentPadding: EdgeInsets.all(
-                                                                          Width *
-                                                                              0.005),
-                                                                      hoverColor: Colors
-                                                                          .grey
-                                                                          .shade300,
-                                                                      hintText:
-                                                                          "Bhav",
-                                                                      hintStyle:
-                                                                          TextStyle(
-                                                                        fontFamily:
-                                                                            "sans",
-                                                                        fontSize:
-                                                                            Width *
-                                                                                0.01,
-                                                                      ),
-                                                                      hintFadeDuration: const Duration(
-                                                                          seconds:
-                                                                              1),
-                                                                      prefixIcon:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .numbers,
-                                                                        size: Width *
-                                                                            0.015,
-                                                                      ),
-                                                                      fillColor: const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          229,
-                                                                          241,
-                                                                          248),
-                                                                      filled:
-                                                                          true,
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                          borderSide: BorderSide(
-                                                                              width:
-                                                                                  1,
-                                                                              color: Colors
-                                                                                  .grey)),
-                                                                      focusedBorder:
-                                                                          const OutlineInputBorder(
-                                                                              borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      height: Height * 0.1,
-                                                      width: Width * 0.08,
-                                                      color: Colors.white,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Lungar",
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    "sans",
-                                                                fontSize:
-                                                                    Width *
-                                                                        0.008,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.005,
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.05,
-                                                            width: Width * 0.07,
-                                                            child:
-                                                                TextFormField(
-                                                              validator:
-                                                                  ValidationBuilder()
-                                                                      .minLength(
-                                                                          1)
-                                                                      .maxLength(
-                                                                          45)
-                                                                      .build(),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              onChanged: (val) {
-                                                                setState(() {
-                                                                  lungar = val;
-                                                                });
-                                                              },
-                                                              cursorColor:
-                                                                  Colors
-                                                                      .black87,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      contentPadding: EdgeInsets.all(
-                                                                          Width *
-                                                                              0.005),
-                                                                      hoverColor: Colors
-                                                                          .grey
-                                                                          .shade300,
-                                                                      hintText:
-                                                                          "Lungar",
-                                                                      hintStyle:
-                                                                          TextStyle(
-                                                                        fontFamily:
-                                                                            "sans",
-                                                                        fontSize:
-                                                                            Width *
-                                                                                0.01,
-                                                                      ),
-                                                                      hintFadeDuration: const Duration(
-                                                                          seconds:
-                                                                              1),
-                                                                      prefixIcon:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .numbers,
-                                                                        size: Width *
-                                                                            0.015,
-                                                                      ),
-                                                                      fillColor: const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          229,
-                                                                          241,
-                                                                          248),
-                                                                      filled:
-                                                                          true,
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                          borderSide: BorderSide(
-                                                                              width:
-                                                                                  1,
-                                                                              color: Colors
-                                                                                  .grey)),
-                                                                      focusedBorder:
-                                                                          const OutlineInputBorder(
-                                                                              borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceAround,
-                                                  children: [
-                                                    Container(
-                                                      height: Height * 0.1,
-                                                      width: Width * 0.08,
-                                                      color: Colors.white,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Gross Wt(kg)",
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    "sans",
-                                                                fontSize:
-                                                                    Width *
-                                                                        0.008,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.005,
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.05,
-                                                            width: Width * 0.07,
-                                                            child:
-                                                                TextFormField(
-                                                              validator:
-                                                                  ValidationBuilder()
-                                                                      .minLength(
-                                                                          1)
-                                                                      .maxLength(
-                                                                          45)
-                                                                      .build(),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              onChanged: (val) {
-                                                                setState(() {
-                                                                  gross = double
-                                                                      .parse(val
-                                                                          .toString());
-                                                                });
-                                                              },
-                                                              cursorColor:
-                                                                  Colors
-                                                                      .black87,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      contentPadding: EdgeInsets.all(
-                                                                          Width *
-                                                                              0.005),
-                                                                      hoverColor: Colors
-                                                                          .grey
-                                                                          .shade300,
-                                                                      hintText:
-                                                                          "Gross",
-                                                                      hintStyle:
-                                                                          TextStyle(
-                                                                        fontFamily:
-                                                                            "sans",
-                                                                        fontSize:
-                                                                            Width *
-                                                                                0.01,
-                                                                      ),
-                                                                      hintFadeDuration: const Duration(
-                                                                          seconds:
-                                                                              1),
-                                                                      prefixIcon:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .numbers,
-                                                                        size: Width *
-                                                                            0.015,
-                                                                      ),
-                                                                      fillColor: const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          229,
-                                                                          241,
-                                                                          248),
-                                                                      filled:
-                                                                          true,
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                          borderSide: BorderSide(
-                                                                              width:
-                                                                                  1,
-                                                                              color: Colors
-                                                                                  .grey)),
-                                                                      focusedBorder:
-                                                                          const OutlineInputBorder(
-                                                                              borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      height: Height * 0.1,
-                                                      width: Width * 0.08,
-                                                      color: Colors.white,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Tare Wt(kg)",
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    "sans",
-                                                                fontSize:
-                                                                    Width *
-                                                                        0.008,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.005,
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.05,
-                                                            width: Width * 0.07,
-                                                            child:
-                                                                TextFormField(
-                                                              validator:
-                                                                  ValidationBuilder()
-                                                                      .minLength(
-                                                                          1)
-                                                                      .maxLength(
-                                                                          45)
-                                                                      .build(),
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .number,
-                                                              onChanged: (val) {
-                                                                setState(() {
-                                                                  tare = double
-                                                                      .parse(
-                                                                          val);
-                                                                });
-                                                              },
-                                                              cursorColor:
-                                                                  Colors
-                                                                      .black87,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      contentPadding: EdgeInsets.all(
-                                                                          Width *
-                                                                              0.005),
-                                                                      hoverColor: Colors
-                                                                          .grey
-                                                                          .shade300,
-                                                                      hintText:
-                                                                          "Tare",
-                                                                      hintStyle:
-                                                                          TextStyle(
-                                                                        fontFamily:
-                                                                            "sans",
-                                                                        fontSize:
-                                                                            Width *
-                                                                                0.01,
-                                                                      ),
-                                                                      hintFadeDuration: const Duration(
-                                                                          seconds:
-                                                                              1),
-                                                                      prefixIcon:
-                                                                          Icon(
-                                                                        Icons
-                                                                            .numbers,
-                                                                        size: Width *
-                                                                            0.015,
-                                                                      ),
-                                                                      fillColor: const Color
-                                                                          .fromARGB(
-                                                                          255,
-                                                                          229,
-                                                                          241,
-                                                                          248),
-                                                                      filled:
-                                                                          true,
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                          borderSide: BorderSide(
-                                                                              width:
-                                                                                  1,
-                                                                              color: Colors
-                                                                                  .grey)),
-                                                                      focusedBorder:
-                                                                          const OutlineInputBorder(
-                                                                              borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      height: Height * 0.1,
-                                                      width: Width * 0.08,
-                                                      color: Colors.white,
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Units",
-                                                            style: TextStyle(
-                                                                fontFamily:
-                                                                    "sans",
-                                                                fontSize:
-                                                                    Width *
-                                                                        0.008,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                          ),
-                                                          SizedBox(
-                                                            height:
-                                                                Height * 0.005,
-                                                          ),
-                                                          Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: const Color
-                                                                  .fromARGB(
-                                                                  255,
-                                                                  229,
-                                                                  241,
-                                                                  248),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5),
-                                                            ),
-                                                            height:
-                                                                Height * 0.05,
-                                                            width: Width * 0.07,
-                                                            child:
-                                                                DropdownButton(
-                                                              padding: EdgeInsets
-                                                                  .all(Width *
-                                                                      0.0045),
-                                                              iconSize:
-                                                                  Width * 0.01,
-                                                              underline:
-                                                                  const Text(
-                                                                      ""),
-                                                              isExpanded: true,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5),
-                                                              dropdownColor:
-                                                                  Colors.white,
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.01,
-                                                                  color: Colors
-                                                                      .black87),
-                                                              value:
-                                                                  dropdownValue,
-                                                              onChanged: (String?
-                                                                  newValue) {
-                                                                setState(() {
-                                                                  dropdownValue =
-                                                                      newValue!;
-                                                                  if (dropdownValue ==
-                                                                      "Loose") {
-                                                                    pati = true;
-                                                                    danda =
-                                                                        false;
-                                                                    wastage =
-                                                                        false;
-                                                                  } else if (dropdownValue ==
-                                                                      "Carate") {
-                                                                    pati = true;
-                                                                    danda =
-                                                                        true;
-                                                                    wastage =
-                                                                        false;
-                                                                  } else if (dropdownValue ==
-                                                                      "Panje") {
-                                                                    pati = true;
-                                                                    danda =
-                                                                        true;
-                                                                    wastage =
-                                                                        false;
-                                                                  } else if (dropdownValue ==
-                                                                      "Box") {
-                                                                    pati = true;
-                                                                    danda =
-                                                                        true;
-                                                                    wastage =
-                                                                        true;
-                                                                  }
-                                                                });
-                                                              },
-                                                              items: <String>[
-                                                                'Loose',
-                                                                'Carate',
-                                                                'Panje',
-                                                                'Box'
-                                                              ].map<
-                                                                  DropdownMenuItem<
-                                                                      String>>((String
-                                                                  value) {
-                                                                return DropdownMenuItem<
-                                                                    String>(
-                                                                  value: value,
-                                                                  child: Text(
-                                                                      value),
-                                                                );
-                                                              }).toList(),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Visibility(
-                                                  visible: pati,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: Width * 0.018,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "Pati",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            SizedBox(
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child:
-                                                                  TextFormField(
-                                                                initialValue:
-                                                                    patival
-                                                                        .toString(),
-                                                                validator: ValidationBuilder()
-                                                                    .minLength(
-                                                                        1)
-                                                                    .maxLength(
-                                                                        45)
-                                                                    .build(),
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .number,
-                                                                onChanged:
-                                                                    (val) {
-                                                                  setState(() {
-                                                                    patival = double
-                                                                        .parse(
-                                                                            val);
-                                                                  });
-                                                                },
-                                                                cursorColor:
-                                                                    Colors
-                                                                        .black87,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                        contentPadding: EdgeInsets.all(Width *
-                                                                            0.005),
-                                                                        hoverColor: Colors
-                                                                            .grey
-                                                                            .shade300,
-                                                                        hintText:
-                                                                            "Pati",
-                                                                        hintStyle:
-                                                                            TextStyle(
-                                                                          fontFamily:
-                                                                              "sans",
-                                                                          fontSize:
-                                                                              Width * 0.01,
-                                                                        ),
-                                                                        hintFadeDuration: const Duration(
-                                                                            seconds:
-                                                                                1),
-                                                                        prefixIcon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .numbers,
-                                                                          size: Width *
-                                                                              0.015,
-                                                                        ),
-                                                                        fillColor: const Color
-                                                                            .fromARGB(
-                                                                            255,
-                                                                            229,
-                                                                            241,
-                                                                            248),
-                                                                        filled:
-                                                                            true,
-                                                                        enabledBorder:
-                                                                            const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
-                                                                        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: Width * 0.037,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "PatiUnit",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    229,
-                                                                    241,
-                                                                    248),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                              ),
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child:
-                                                                  DropdownButton(
-                                                                padding: EdgeInsets
-                                                                    .all(Width *
-                                                                        0.0045),
-                                                                iconSize:
-                                                                    Width *
-                                                                        0.01,
-                                                                underline:
-                                                                    const Text(
-                                                                        ""),
-                                                                isExpanded:
-                                                                    true,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                                dropdownColor:
-                                                                    Colors
-                                                                        .white,
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "sans",
-                                                                    fontSize:
-                                                                        Width *
-                                                                            0.01,
-                                                                    color: Colors
-                                                                        .black87),
-                                                                value:
-                                                                    _patiunit,
-                                                                onChanged: (String?
-                                                                    newValue) {
-                                                                  setState(() {
-                                                                    _patiunit =
-                                                                        newValue!;
-                                                                  });
-                                                                },
-                                                                items: <String>[
-                                                                  'Percent',
-                                                                  'KG',
-                                                                ].map<
-                                                                    DropdownMenuItem<
-                                                                        String>>((String
-                                                                    value) {
-                                                                  return DropdownMenuItem<
-                                                                      String>(
-                                                                    value:
-                                                                        value,
-                                                                    child: Text(
-                                                                        value),
-                                                                  );
-                                                                }).toList(),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: Width * 0.037,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "Pati Wt",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    229,
-                                                                    241,
-                                                                    248),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                              ),
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child: Container(
-                                                                padding: EdgeInsets
-                                                                    .all(Width *
-                                                                        0.004),
-                                                                height: Height *
-                                                                    0.05,
-                                                                width: Width *
-                                                                    0.07,
-                                                                decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                        0xffd5ecfa),
-                                                                    border: Border.all(
-                                                                        width:
-                                                                            1,
-                                                                        color: Colors
-                                                                            .grey),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            5)),
-                                                                child: Text(
-                                                                    "$patiwt",
-                                                                    style: TextStyle(
-                                                                        fontFamily:
-                                                                            "sans",
-                                                                        fontWeight:
-                                                                            FontWeight
-                                                                                .bold,
-                                                                        color: Colors
-                                                                            .black87,
-                                                                        fontSize:
-                                                                            Width *
-                                                                                0.008)),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ), //working
-                                                Visibility(
-                                                  visible: danda,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: Width * 0.018,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "Danda",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            SizedBox(
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child:
-                                                                  TextFormField(
-                                                                initialValue:
-                                                                    dandaval
-                                                                        .toString(),
-                                                                validator: ValidationBuilder()
-                                                                    .minLength(
-                                                                        1)
-                                                                    .maxLength(
-                                                                        45)
-                                                                    .build(),
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .number,
-                                                                onChanged:
-                                                                    (val) {
-                                                                  setState(() {
-                                                                    dandaval =
-                                                                        double.parse(
-                                                                            val);
-                                                                  });
-                                                                },
-                                                                cursorColor:
-                                                                    Colors
-                                                                        .black87,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                        contentPadding: EdgeInsets.all(Width *
-                                                                            0.005),
-                                                                        hoverColor: Colors
-                                                                            .grey
-                                                                            .shade300,
-                                                                        hintText:
-                                                                            "Danda",
-                                                                        hintStyle:
-                                                                            TextStyle(
-                                                                          fontFamily:
-                                                                              "sans",
-                                                                          fontSize:
-                                                                              Width * 0.01,
-                                                                        ),
-                                                                        hintFadeDuration: const Duration(
-                                                                            seconds:
-                                                                                1),
-                                                                        prefixIcon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .numbers,
-                                                                          size: Width *
-                                                                              0.015,
-                                                                        ),
-                                                                        fillColor: const Color
-                                                                            .fromARGB(
-                                                                            255,
-                                                                            229,
-                                                                            241,
-                                                                            248),
-                                                                        filled:
-                                                                            true,
-                                                                        enabledBorder:
-                                                                            const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
-                                                                        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: Width * 0.037,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "DandaUnit",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    229,
-                                                                    241,
-                                                                    248),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                              ),
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child:
-                                                                  DropdownButton(
-                                                                padding: EdgeInsets
-                                                                    .all(Width *
-                                                                        0.0045),
-                                                                iconSize:
-                                                                    Width *
-                                                                        0.01,
-                                                                underline:
-                                                                    const Text(
-                                                                        ""),
-                                                                isExpanded:
-                                                                    true,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                                dropdownColor:
-                                                                    Colors
-                                                                        .white,
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "sans",
-                                                                    fontSize:
-                                                                        Width *
-                                                                            0.01,
-                                                                    color: Colors
-                                                                        .black87),
-                                                                value:
-                                                                    _dandaunit,
-                                                                onChanged: (String?
-                                                                    newValue) {
-                                                                  setState(() {
-                                                                    _dandaunit =
-                                                                        newValue!;
-                                                                  });
-                                                                },
-                                                                items: <String>[
-                                                                  'Percent',
-                                                                  'KG',
-                                                                ].map<
-                                                                    DropdownMenuItem<
-                                                                        String>>((String
-                                                                    value) {
-                                                                  return DropdownMenuItem<
-                                                                      String>(
-                                                                    value:
-                                                                        value,
-                                                                    child: Text(
-                                                                        value),
-                                                                  );
-                                                                }).toList(),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: Width * 0.037,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "Danda Wt",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    229,
-                                                                    241,
-                                                                    248),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                              ),
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child: Container(
-                                                                padding: EdgeInsets
-                                                                    .all(Width *
-                                                                        0.004),
-                                                                height: Height *
-                                                                    0.05,
-                                                                width: Width *
-                                                                    0.07,
-                                                                decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                        0xffd5ecfa),
-                                                                    border: Border.all(
-                                                                        width:
-                                                                            1,
-                                                                        color: Colors
-                                                                            .grey),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            5)),
-                                                                child: Text(
-                                                                  dandawt
-                                                                      .toString(),
-                                                                  style: TextStyle(
-                                                                      fontFamily:
-                                                                          "sans",
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: Colors
-                                                                          .black87,
-                                                                      fontSize:
-                                                                          Width *
-                                                                              0.008),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ), //working
-                                                Visibility(
-                                                  visible: wastage,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    children: [
-                                                      SizedBox(
-                                                        width: Width * 0.018,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "Wastage",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            SizedBox(
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child:
-                                                                  TextFormField(
-                                                                initialValue:
-                                                                    wastageval
-                                                                        .toString(),
-                                                                validator: ValidationBuilder()
-                                                                    .minLength(
-                                                                        1)
-                                                                    .maxLength(
-                                                                        45)
-                                                                    .build(),
-                                                                keyboardType:
-                                                                    TextInputType
-                                                                        .number,
-                                                                onChanged:
-                                                                    (val) {
-                                                                  setState(() {
-                                                                    wastageval =
-                                                                        double.parse(
-                                                                            val);
-                                                                  });
-                                                                },
-                                                                cursorColor:
-                                                                    Colors
-                                                                        .black87,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                        contentPadding: EdgeInsets.all(Width *
-                                                                            0.005),
-                                                                        hoverColor: Colors
-                                                                            .grey
-                                                                            .shade300,
-                                                                        hintText:
-                                                                            "Wastage",
-                                                                        hintStyle:
-                                                                            TextStyle(
-                                                                          fontFamily:
-                                                                              "sans",
-                                                                          fontSize:
-                                                                              Width * 0.01,
-                                                                        ),
-                                                                        hintFadeDuration: const Duration(
-                                                                            seconds:
-                                                                                1),
-                                                                        prefixIcon:
-                                                                            Icon(
-                                                                          Icons
-                                                                              .numbers,
-                                                                          size: Width *
-                                                                              0.015,
-                                                                        ),
-                                                                        fillColor: const Color
-                                                                            .fromARGB(
-                                                                            255,
-                                                                            229,
-                                                                            241,
-                                                                            248),
-                                                                        filled:
-                                                                            true,
-                                                                        enabledBorder:
-                                                                            const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
-                                                                        focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
-                                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: Width * 0.037,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "WastageUnit",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    229,
-                                                                    241,
-                                                                    248),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                              ),
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child:
-                                                                  DropdownButton(
-                                                                padding: EdgeInsets
-                                                                    .all(Width *
-                                                                        0.0045),
-                                                                iconSize:
-                                                                    Width *
-                                                                        0.01,
-                                                                underline:
-                                                                    const Text(
-                                                                        ""),
-                                                                isExpanded:
-                                                                    true,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                                dropdownColor:
-                                                                    Colors
-                                                                        .white,
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "sans",
-                                                                    fontSize:
-                                                                        Width *
-                                                                            0.01,
-                                                                    color: Colors
-                                                                        .black87),
-                                                                value:
-                                                                    _wastageunit,
-                                                                onChanged: (String?
-                                                                    newValue) {
-                                                                  setState(() {
-                                                                    _wastageunit =
-                                                                        newValue!;
-                                                                  });
-                                                                },
-                                                                items: <String>[
-                                                                  'Percent',
-                                                                  'KG',
-                                                                ].map<
-                                                                    DropdownMenuItem<
-                                                                        String>>((String
-                                                                    value) {
-                                                                  return DropdownMenuItem<
-                                                                      String>(
-                                                                    value:
-                                                                        value,
-                                                                    child: Text(
-                                                                        value),
-                                                                  );
-                                                                }).toList(),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: Width * 0.037,
-                                                      ),
-                                                      Container(
-                                                        height: Height * 0.1,
-                                                        width: Width * 0.08,
-                                                        color: Colors.white,
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Text(
-                                                              "Wastage Wt",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "sans",
-                                                                  fontSize:
-                                                                      Width *
-                                                                          0.008,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                            ),
-                                                            SizedBox(
-                                                              height: Height *
-                                                                  0.005,
-                                                            ),
-                                                            Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color: const Color
-                                                                    .fromARGB(
-                                                                    255,
-                                                                    229,
-                                                                    241,
-                                                                    248),
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            5),
-                                                              ),
-                                                              height:
-                                                                  Height * 0.05,
-                                                              width:
-                                                                  Width * 0.07,
-                                                              child: Container(
-                                                                padding: EdgeInsets
-                                                                    .all(Width *
-                                                                        0.004),
-                                                                height: Height *
-                                                                    0.05,
-                                                                width: Width *
-                                                                    0.07,
-                                                                decoration: BoxDecoration(
-                                                                    color: const Color(
-                                                                        0xffd5ecfa),
-                                                                    border: Border.all(
-                                                                        width:
-                                                                            1,
-                                                                        color: Colors
-                                                                            .grey),
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            5)),
-                                                                child: Text(
-                                                                  wastagewt
-                                                                      .toString(),
-                                                                  style: TextStyle(
-                                                                      fontFamily:
-                                                                          "sans",
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: Colors
-                                                                          .black87,
-                                                                      fontSize:
-                                                                          Width *
-                                                                              0.008),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ), //working
-                                                Container(
-                                                  child: ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                              backgroundColor:
-                                                                  Colors.red),
-                                                      onPressed: () {
-                                                        setState(() {
-                                                          if (dropdownValue ==
-                                                              "Carate") {
-                                                            _caratecalc();
-                                                          }
-                                                          if (dropdownValue ==
-                                                              "Panje") {
-                                                            _caratecalc();
-                                                          }
-                                                          if (dropdownValue ==
-                                                              "Loose") {
-                                                            _loosecalc();
-                                                          }
-                                                          if (dropdownValue ==
-                                                              "Box") {
-                                                            _boxcalc();
-                                                          }
-                                                        });
-                                                      },
+                                              value.ismultikissan
+                                                  ? const Center(
                                                       child: Text(
-                                                        "Get WT",
-                                                        style: TextStyle(
-                                                            fontFamily: "sans",
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Colors.white,
-                                                            fontSize:
-                                                                Width * 0.008),
-                                                      )),
-                                                )
-                                              ], //this
-                                            ),
-                                          ),
+                                                      "MultiKissan Bill Is In Use!",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ))
+                                                  : Visibility(
+                                                      visible:
+                                                          value.issinglekissan,
+                                                      child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            children: [
+                                                              Container(
+                                                                height: Height *
+                                                                    0.1,
+                                                                width: Width *
+                                                                    0.08,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      "Village",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontSize: Width *
+                                                                              0.008,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: Height *
+                                                                          0.005,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          Height *
+                                                                              0.05,
+                                                                      width: Width *
+                                                                          0.07,
+                                                                      child:
+                                                                          TextFormField(
+                                                                        validator: ValidationBuilder()
+                                                                            .minLength(1)
+                                                                            .maxLength(45)
+                                                                            .build(),
+                                                                        onChanged:
+                                                                            (val) {
+                                                                          parchavillage = val
+                                                                              .toString()
+                                                                              .toLowerCase();
+                                                                        },
+                                                                        cursorColor:
+                                                                            Colors.black87,
+                                                                        decoration: InputDecoration(
+                                                                            contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                            hoverColor: Colors.grey.shade300,
+                                                                            hintText: "Village",
+                                                                            hintStyle: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                            ),
+                                                                            hintFadeDuration: const Duration(seconds: 1),
+                                                                            prefixIcon: Icon(
+                                                                              Icons.numbers,
+                                                                              size: Width * 0.015,
+                                                                            ),
+                                                                            fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                            filled: true,
+                                                                            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                height: Height *
+                                                                    0.1,
+                                                                width: Width *
+                                                                    0.08,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      "Bhav",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontSize: Width *
+                                                                              0.008,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: Height *
+                                                                          0.005,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          Height *
+                                                                              0.05,
+                                                                      width: Width *
+                                                                          0.07,
+                                                                      child:
+                                                                          TextFormField(
+                                                                        validator: ValidationBuilder()
+                                                                            .minLength(1)
+                                                                            .maxLength(45)
+                                                                            .build(),
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        onChanged:
+                                                                            (val) {
+                                                                          setState(
+                                                                              () {
+                                                                            bhav =
+                                                                                double.parse(val);
+                                                                          });
+                                                                        },
+                                                                        cursorColor:
+                                                                            Colors.black87,
+                                                                        decoration: InputDecoration(
+                                                                            contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                            hoverColor: Colors.grey.shade300,
+                                                                            hintText: "Bhav",
+                                                                            hintStyle: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                            ),
+                                                                            hintFadeDuration: const Duration(seconds: 1),
+                                                                            prefixIcon: Icon(
+                                                                              Icons.numbers,
+                                                                              size: Width * 0.015,
+                                                                            ),
+                                                                            fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                            filled: true,
+                                                                            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                height: Height *
+                                                                    0.1,
+                                                                width: Width *
+                                                                    0.08,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      "Lungar",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontSize: Width *
+                                                                              0.008,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: Height *
+                                                                          0.005,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          Height *
+                                                                              0.05,
+                                                                      width: Width *
+                                                                          0.07,
+                                                                      child:
+                                                                          TextFormField(
+                                                                        validator: ValidationBuilder()
+                                                                            .minLength(1)
+                                                                            .maxLength(45)
+                                                                            .build(),
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        onChanged:
+                                                                            (val) {
+                                                                          setState(
+                                                                              () {
+                                                                            lungar =
+                                                                                double.parse(val);
+                                                                          });
+                                                                        },
+                                                                        cursorColor:
+                                                                            Colors.black87,
+                                                                        decoration: InputDecoration(
+                                                                            contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                            hoverColor: Colors.grey.shade300,
+                                                                            hintText: "Lungar",
+                                                                            hintStyle: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                            ),
+                                                                            hintFadeDuration: const Duration(seconds: 1),
+                                                                            prefixIcon: Icon(
+                                                                              Icons.numbers,
+                                                                              size: Width * 0.015,
+                                                                            ),
+                                                                            fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                            filled: true,
+                                                                            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            children: [
+                                                              Container(
+                                                                height: Height *
+                                                                    0.1,
+                                                                width: Width *
+                                                                    0.08,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      "Gross Wt(kg)",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontSize: Width *
+                                                                              0.008,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: Height *
+                                                                          0.005,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          Height *
+                                                                              0.05,
+                                                                      width: Width *
+                                                                          0.07,
+                                                                      child:
+                                                                          TextFormField(
+                                                                        validator: ValidationBuilder()
+                                                                            .minLength(1)
+                                                                            .maxLength(45)
+                                                                            .build(),
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        onChanged:
+                                                                            (val) {
+                                                                          setState(
+                                                                              () {
+                                                                            gross =
+                                                                                double.parse(val.toString());
+                                                                          });
+                                                                        },
+                                                                        cursorColor:
+                                                                            Colors.black87,
+                                                                        decoration: InputDecoration(
+                                                                            contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                            hoverColor: Colors.grey.shade300,
+                                                                            hintText: "Gross",
+                                                                            hintStyle: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                            ),
+                                                                            hintFadeDuration: const Duration(seconds: 1),
+                                                                            prefixIcon: Icon(
+                                                                              Icons.numbers,
+                                                                              size: Width * 0.015,
+                                                                            ),
+                                                                            fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                            filled: true,
+                                                                            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                height: Height *
+                                                                    0.1,
+                                                                width: Width *
+                                                                    0.08,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      "Tare Wt(kg)",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontSize: Width *
+                                                                              0.008,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: Height *
+                                                                          0.005,
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          Height *
+                                                                              0.05,
+                                                                      width: Width *
+                                                                          0.07,
+                                                                      child:
+                                                                          TextFormField(
+                                                                        validator: ValidationBuilder()
+                                                                            .minLength(1)
+                                                                            .maxLength(45)
+                                                                            .build(),
+                                                                        keyboardType:
+                                                                            TextInputType.number,
+                                                                        onChanged:
+                                                                            (val) {
+                                                                          setState(
+                                                                              () {
+                                                                            tare =
+                                                                                double.parse(val);
+                                                                          });
+                                                                        },
+                                                                        cursorColor:
+                                                                            Colors.black87,
+                                                                        decoration: InputDecoration(
+                                                                            contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                            hoverColor: Colors.grey.shade300,
+                                                                            hintText: "Tare",
+                                                                            hintStyle: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                            ),
+                                                                            hintFadeDuration: const Duration(seconds: 1),
+                                                                            prefixIcon: Icon(
+                                                                              Icons.numbers,
+                                                                              size: Width * 0.015,
+                                                                            ),
+                                                                            fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                            filled: true,
+                                                                            enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                            focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                height: Height *
+                                                                    0.1,
+                                                                width: Width *
+                                                                    0.08,
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  children: [
+                                                                    Text(
+                                                                      "Units",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontSize: Width *
+                                                                              0.008,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: Height *
+                                                                          0.005,
+                                                                    ),
+                                                                    Container(
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        color: const Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            229,
+                                                                            241,
+                                                                            248),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(5),
+                                                                      ),
+                                                                      height:
+                                                                          Height *
+                                                                              0.05,
+                                                                      width: Width *
+                                                                          0.07,
+                                                                      child:
+                                                                          DropdownButton(
+                                                                        padding:
+                                                                            EdgeInsets.all(Width *
+                                                                                0.0045),
+                                                                        iconSize:
+                                                                            Width *
+                                                                                0.01,
+                                                                        underline:
+                                                                            const Text(""),
+                                                                        isExpanded:
+                                                                            true,
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(5),
+                                                                        dropdownColor:
+                                                                            Colors.white,
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.01,
+                                                                            color:
+                                                                                Colors.black87),
+                                                                        value:
+                                                                            dropdownValue,
+                                                                        onChanged:
+                                                                            (String?
+                                                                                newValue) {
+                                                                          setState(
+                                                                              () {
+                                                                            dropdownValue =
+                                                                                newValue!;
+                                                                            if (dropdownValue ==
+                                                                                "Loose") {
+                                                                              pati = true;
+                                                                              danda = false;
+                                                                              wastage = false;
+                                                                            } else if (dropdownValue ==
+                                                                                "Carate") {
+                                                                              pati = true;
+                                                                              danda = true;
+                                                                              wastage = false;
+                                                                            } else if (dropdownValue ==
+                                                                                "Panje") {
+                                                                              pati = true;
+                                                                              danda = true;
+                                                                              wastage = false;
+                                                                            } else if (dropdownValue ==
+                                                                                "Box") {
+                                                                              pati = true;
+                                                                              danda = true;
+                                                                              wastage = true;
+                                                                            }
+                                                                          });
+                                                                        },
+                                                                        items: <String>[
+                                                                          'Loose',
+                                                                          'Carate',
+                                                                          'Panje',
+                                                                          'Box'
+                                                                        ].map<
+                                                                            DropdownMenuItem<
+                                                                                String>>((String
+                                                                            value) {
+                                                                          return DropdownMenuItem<
+                                                                              String>(
+                                                                            value:
+                                                                                value,
+                                                                            child:
+                                                                                Text(value),
+                                                                          );
+                                                                        }).toList(),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Visibility(
+                                                            visible: pati,
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.018,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Pati",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            TextFormField(
+                                                                          initialValue:
+                                                                              patival.toString(),
+                                                                          validator: ValidationBuilder()
+                                                                              .minLength(1)
+                                                                              .maxLength(45)
+                                                                              .build(),
+                                                                          keyboardType:
+                                                                              TextInputType.number,
+                                                                          onChanged:
+                                                                              (val) {
+                                                                            setState(() {
+                                                                              patival = double.parse(val);
+                                                                            });
+                                                                          },
+                                                                          cursorColor:
+                                                                              Colors.black87,
+                                                                          decoration: InputDecoration(
+                                                                              contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                              hoverColor: Colors.grey.shade300,
+                                                                              hintText: "Pati",
+                                                                              hintStyle: TextStyle(
+                                                                                fontFamily: "sans",
+                                                                                fontSize: Width * 0.01,
+                                                                              ),
+                                                                              hintFadeDuration: const Duration(seconds: 1),
+                                                                              prefixIcon: Icon(
+                                                                                Icons.numbers,
+                                                                                size: Width * 0.015,
+                                                                              ),
+                                                                              fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                              filled: true,
+                                                                              enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.037,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "PatiUnit",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              229,
+                                                                              241,
+                                                                              248),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                        ),
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            DropdownButton(
+                                                                          padding:
+                                                                              EdgeInsets.all(Width * 0.0045),
+                                                                          iconSize:
+                                                                              Width * 0.01,
+                                                                          underline:
+                                                                              const Text(""),
+                                                                          isExpanded:
+                                                                              true,
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                          dropdownColor:
+                                                                              Colors.white,
+                                                                          style: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                              color: Colors.black87),
+                                                                          value:
+                                                                              _patiunit,
+                                                                          onChanged:
+                                                                              (String? newValue) {
+                                                                            setState(() {
+                                                                              _patiunit = newValue!;
+                                                                            });
+                                                                          },
+                                                                          items:
+                                                                              <String>[
+                                                                            'Percent',
+                                                                            'KG',
+                                                                          ].map<DropdownMenuItem<String>>((String value) {
+                                                                            return DropdownMenuItem<String>(
+                                                                              value: value,
+                                                                              child: Text(value),
+                                                                            );
+                                                                          }).toList(),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.037,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Pati Wt",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              229,
+                                                                              241,
+                                                                              248),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                        ),
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            Container(
+                                                                          padding:
+                                                                              EdgeInsets.all(Width * 0.004),
+                                                                          height:
+                                                                              Height * 0.05,
+                                                                          width:
+                                                                              Width * 0.07,
+                                                                          decoration: BoxDecoration(
+                                                                              color: const Color(0xffd5ecfa),
+                                                                              border: Border.all(width: 1, color: Colors.grey),
+                                                                              borderRadius: BorderRadius.circular(5)),
+                                                                          child: Text(
+                                                                              "$patiwt",
+                                                                              style: TextStyle(fontFamily: "sans", fontWeight: FontWeight.bold, color: Colors.black87, fontSize: Width * 0.008)),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ), //working
+                                                          Visibility(
+                                                            visible: danda,
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.018,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Danda",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            TextFormField(
+                                                                          initialValue:
+                                                                              dandaval.toString(),
+                                                                          validator: ValidationBuilder()
+                                                                              .minLength(1)
+                                                                              .maxLength(45)
+                                                                              .build(),
+                                                                          keyboardType:
+                                                                              TextInputType.number,
+                                                                          onChanged:
+                                                                              (val) {
+                                                                            setState(() {
+                                                                              dandaval = double.parse(val);
+                                                                            });
+                                                                          },
+                                                                          cursorColor:
+                                                                              Colors.black87,
+                                                                          decoration: InputDecoration(
+                                                                              contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                              hoverColor: Colors.grey.shade300,
+                                                                              hintText: "Danda",
+                                                                              hintStyle: TextStyle(
+                                                                                fontFamily: "sans",
+                                                                                fontSize: Width * 0.01,
+                                                                              ),
+                                                                              hintFadeDuration: const Duration(seconds: 1),
+                                                                              prefixIcon: Icon(
+                                                                                Icons.numbers,
+                                                                                size: Width * 0.015,
+                                                                              ),
+                                                                              fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                              filled: true,
+                                                                              enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.037,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "DandaUnit",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              229,
+                                                                              241,
+                                                                              248),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                        ),
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            DropdownButton(
+                                                                          padding:
+                                                                              EdgeInsets.all(Width * 0.0045),
+                                                                          iconSize:
+                                                                              Width * 0.01,
+                                                                          underline:
+                                                                              const Text(""),
+                                                                          isExpanded:
+                                                                              true,
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                          dropdownColor:
+                                                                              Colors.white,
+                                                                          style: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                              color: Colors.black87),
+                                                                          value:
+                                                                              _dandaunit,
+                                                                          onChanged:
+                                                                              (String? newValue) {
+                                                                            setState(() {
+                                                                              _dandaunit = newValue!;
+                                                                            });
+                                                                          },
+                                                                          items:
+                                                                              <String>[
+                                                                            'Percent',
+                                                                            'KG',
+                                                                          ].map<DropdownMenuItem<String>>((String value) {
+                                                                            return DropdownMenuItem<String>(
+                                                                              value: value,
+                                                                              child: Text(value),
+                                                                            );
+                                                                          }).toList(),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.037,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Danda Wt",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              229,
+                                                                              241,
+                                                                              248),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                        ),
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            Container(
+                                                                          padding:
+                                                                              EdgeInsets.all(Width * 0.004),
+                                                                          height:
+                                                                              Height * 0.05,
+                                                                          width:
+                                                                              Width * 0.07,
+                                                                          decoration: BoxDecoration(
+                                                                              color: const Color(0xffd5ecfa),
+                                                                              border: Border.all(width: 1, color: Colors.grey),
+                                                                              borderRadius: BorderRadius.circular(5)),
+                                                                          child:
+                                                                              Text(
+                                                                            dandawt.toString(),
+                                                                            style: TextStyle(
+                                                                                fontFamily: "sans",
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black87,
+                                                                                fontSize: Width * 0.008),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ), //working
+                                                          Visibility(
+                                                            visible: wastage,
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.018,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Wastage",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            TextFormField(
+                                                                          initialValue:
+                                                                              wastageval.toString(),
+                                                                          validator: ValidationBuilder()
+                                                                              .minLength(1)
+                                                                              .maxLength(45)
+                                                                              .build(),
+                                                                          keyboardType:
+                                                                              TextInputType.number,
+                                                                          onChanged:
+                                                                              (val) {
+                                                                            setState(() {
+                                                                              wastageval = double.parse(val);
+                                                                            });
+                                                                          },
+                                                                          cursorColor:
+                                                                              Colors.black87,
+                                                                          decoration: InputDecoration(
+                                                                              contentPadding: EdgeInsets.all(Width * 0.005),
+                                                                              hoverColor: Colors.grey.shade300,
+                                                                              hintText: "Wastage",
+                                                                              hintStyle: TextStyle(
+                                                                                fontFamily: "sans",
+                                                                                fontSize: Width * 0.01,
+                                                                              ),
+                                                                              hintFadeDuration: const Duration(seconds: 1),
+                                                                              prefixIcon: Icon(
+                                                                                Icons.numbers,
+                                                                                size: Width * 0.015,
+                                                                              ),
+                                                                              fillColor: const Color.fromARGB(255, 229, 241, 248),
+                                                                              filled: true,
+                                                                              enabledBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)),
+                                                                              focusedBorder: const OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.black87)),
+                                                                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.037,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "WastageUnit",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              229,
+                                                                              241,
+                                                                              248),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                        ),
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            DropdownButton(
+                                                                          padding:
+                                                                              EdgeInsets.all(Width * 0.0045),
+                                                                          iconSize:
+                                                                              Width * 0.01,
+                                                                          underline:
+                                                                              const Text(""),
+                                                                          isExpanded:
+                                                                              true,
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                          dropdownColor:
+                                                                              Colors.white,
+                                                                          style: TextStyle(
+                                                                              fontFamily: "sans",
+                                                                              fontSize: Width * 0.01,
+                                                                              color: Colors.black87),
+                                                                          value:
+                                                                              _wastageunit,
+                                                                          onChanged:
+                                                                              (String? newValue) {
+                                                                            setState(() {
+                                                                              _wastageunit = newValue!;
+                                                                            });
+                                                                          },
+                                                                          items:
+                                                                              <String>[
+                                                                            'Percent',
+                                                                            'KG',
+                                                                          ].map<DropdownMenuItem<String>>((String value) {
+                                                                            return DropdownMenuItem<String>(
+                                                                              value: value,
+                                                                              child: Text(value),
+                                                                            );
+                                                                          }).toList(),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                  width: Width *
+                                                                      0.037,
+                                                                ),
+                                                                Container(
+                                                                  height:
+                                                                      Height *
+                                                                          0.1,
+                                                                  width: Width *
+                                                                      0.08,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        "Wastage Wt",
+                                                                        style: TextStyle(
+                                                                            fontFamily:
+                                                                                "sans",
+                                                                            fontSize: Width *
+                                                                                0.008,
+                                                                            fontWeight:
+                                                                                FontWeight.bold),
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: Height *
+                                                                            0.005,
+                                                                      ),
+                                                                      Container(
+                                                                        decoration:
+                                                                            BoxDecoration(
+                                                                          color: const Color
+                                                                              .fromARGB(
+                                                                              255,
+                                                                              229,
+                                                                              241,
+                                                                              248),
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                        ),
+                                                                        height: Height *
+                                                                            0.05,
+                                                                        width: Width *
+                                                                            0.07,
+                                                                        child:
+                                                                            Container(
+                                                                          padding:
+                                                                              EdgeInsets.all(Width * 0.004),
+                                                                          height:
+                                                                              Height * 0.05,
+                                                                          width:
+                                                                              Width * 0.07,
+                                                                          decoration: BoxDecoration(
+                                                                              color: const Color(0xffd5ecfa),
+                                                                              border: Border.all(width: 1, color: Colors.grey),
+                                                                              borderRadius: BorderRadius.circular(5)),
+                                                                          child:
+                                                                              Text(
+                                                                            wastagewt.toString(),
+                                                                            style: TextStyle(
+                                                                                fontFamily: "sans",
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.black87,
+                                                                                fontSize: Width * 0.008),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ), //working
+                                                          Container(
+                                                            child:
+                                                                ElevatedButton(
+                                                                    style: ElevatedButton.styleFrom(
+                                                                        backgroundColor:
+                                                                            Colors
+                                                                                .red),
+                                                                    onPressed:
+                                                                        () {
+                                                                      setState(
+                                                                          () {
+                                                                        if (dropdownValue ==
+                                                                            "Carate") {
+                                                                          _caratecalc();
+                                                                        }
+                                                                        if (dropdownValue ==
+                                                                            "Panje") {
+                                                                          _caratecalc();
+                                                                        }
+                                                                        if (dropdownValue ==
+                                                                            "Loose") {
+                                                                          _loosecalc();
+                                                                        }
+                                                                        if (dropdownValue ==
+                                                                            "Box") {
+                                                                          _boxcalc();
+                                                                        }
+                                                                      });
+                                                                    },
+                                                                    child: Text(
+                                                                      "Get WT",
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "sans",
+                                                                          fontWeight: FontWeight
+                                                                              .bold,
+                                                                          color: Colors
+                                                                              .white,
+                                                                          fontSize:
+                                                                              Width * 0.008),
+                                                                    )),
+                                                          )
+                                                        ], //this
+                                                      ),
+                                                    ),
                                         ),
                                       ),
                                       Container(
@@ -3100,14 +2826,331 @@ class _CreateBillState extends State<CreateBill> {
                                         child:
                                             Consumer<GrandtotalVisibleProvider>(
                                           builder: (context, value, child) =>
-                                              Visibility(
-                                            visible: value.ismultikissan,
-                                            child: MultiKissan(
-                                                controller: _scrollController),
-                                          ),
+                                              value.issinglekissan
+                                                  ? const Center(
+                                                      child: Text(
+                                                      "SingleKissan Bill Is In Use!",
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ))
+                                                  : Visibility(
+                                                      visible:
+                                                          value.ismultikissan,
+                                                      child: MultiKissan(
+                                                          controller:
+                                                              _scrollController),
+                                                    ),
                                         ),
                                       ),
                                     ],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Consumer<GrandtotalVisibleProvider>(
+                                      builder: (context, value, child) =>
+                                          Visibility(
+                                        visible: value.ismultikissan,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            const SizedBox(
+                                              width: 750,
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Gross(kg)",
+                                                  style: TextStyle(
+                                                      fontFamily: "sans",
+                                                      fontSize: Width * 0.008,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                SizedBox(
+                                                  height: Height * 0.005,
+                                                ),
+                                                SizedBox(
+                                                  height: 100,
+                                                  width: 120,
+                                                  child: TextFormField(
+                                                    controller:
+                                                        multiGrossController,
+                                                    validator:
+                                                        ValidationBuilder()
+                                                            .minLength(1)
+                                                            .maxLength(45)
+                                                            .build(),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    onChanged: (val) {},
+                                                    cursorColor: Colors.black87,
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets.all(
+                                                                Width * 0.005),
+                                                        hoverColor: Colors
+                                                            .grey.shade300,
+                                                        hintText: "gross",
+                                                        hintStyle: TextStyle(
+                                                          fontFamily: "sans",
+                                                          fontSize:
+                                                              Width * 0.01,
+                                                        ),
+                                                        hintFadeDuration:
+                                                            const Duration(
+                                                                seconds: 1),
+                                                        prefixIcon: Icon(
+                                                          Icons.numbers,
+                                                          size: Width * 0.015,
+                                                        ),
+                                                        fillColor:
+                                                            const Color.fromARGB(
+                                                                255, 229, 241, 248),
+                                                        filled: true,
+                                                        enabledBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    width: 1,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                        focusedBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide:
+                                                                    BorderSide(
+                                                                        width: 1,
+                                                                        color: Colors.black87)),
+                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Tare(kg)",
+                                                  style: TextStyle(
+                                                      fontFamily: "sans",
+                                                      fontSize: Width * 0.008,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                SizedBox(
+                                                  height: Height * 0.005,
+                                                ),
+                                                SizedBox(
+                                                  height: 100,
+                                                  width: 120,
+                                                  child: TextFormField(
+                                                    controller:
+                                                        multiTareController,
+                                                    validator:
+                                                        ValidationBuilder()
+                                                            .minLength(1)
+                                                            .maxLength(45)
+                                                            .build(),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    onChanged: (val) {},
+                                                    cursorColor: Colors.black87,
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets.all(
+                                                                Width * 0.005),
+                                                        hoverColor: Colors
+                                                            .grey.shade300,
+                                                        hintText: "Tare",
+                                                        hintStyle: TextStyle(
+                                                          fontFamily: "sans",
+                                                          fontSize:
+                                                              Width * 0.01,
+                                                        ),
+                                                        hintFadeDuration:
+                                                            const Duration(
+                                                                seconds: 1),
+                                                        prefixIcon: Icon(
+                                                          Icons.numbers,
+                                                          size: Width * 0.015,
+                                                        ),
+                                                        fillColor:
+                                                            const Color.fromARGB(
+                                                                255, 229, 241, 248),
+                                                        filled: true,
+                                                        enabledBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    width: 1,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                        focusedBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide:
+                                                                    BorderSide(
+                                                                        width: 1,
+                                                                        color: Colors.black87)),
+                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Area Wt(kg)",
+                                                  style: TextStyle(
+                                                      fontFamily: "sans",
+                                                      fontSize: Width * 0.008,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                SizedBox(
+                                                  height: Height * 0.005,
+                                                ),
+                                                SizedBox(
+                                                  height: 100,
+                                                  width: 120,
+                                                  child: TextFormField(
+                                                    controller:
+                                                        multiAreaWtController,
+                                                    readOnly: true,
+                                                    validator:
+                                                        ValidationBuilder()
+                                                            .minLength(1)
+                                                            .maxLength(45)
+                                                            .build(),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    onChanged: (val) {},
+                                                    cursorColor: Colors.black87,
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets.all(
+                                                                Width * 0.005),
+                                                        hoverColor: Colors
+                                                            .grey.shade300,
+                                                        hintText: "Area",
+                                                        hintStyle: TextStyle(
+                                                          fontFamily: "sans",
+                                                          fontSize:
+                                                              Width * 0.01,
+                                                        ),
+                                                        hintFadeDuration:
+                                                            const Duration(
+                                                                seconds: 1),
+                                                        prefixIcon: Icon(
+                                                          Icons.numbers,
+                                                          size: Width * 0.015,
+                                                        ),
+                                                        fillColor:
+                                                            const Color.fromARGB(
+                                                                255, 229, 241, 248),
+                                                        filled: true,
+                                                        enabledBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    width: 1,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                        focusedBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide:
+                                                                    BorderSide(
+                                                                        width: 1,
+                                                                        color: Colors.black87)),
+                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              width: 30,
+                                            ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  "Wt Diff(Q)",
+                                                  style: TextStyle(
+                                                      fontFamily: "sans",
+                                                      fontSize: Width * 0.008,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                SizedBox(
+                                                  height: Height * 0.005,
+                                                ),
+                                                SizedBox(
+                                                  height: 100,
+                                                  width: 120,
+                                                  child: TextFormField(
+                                                    controller:
+                                                        multiWtDiffController,
+                                                    readOnly: true,
+                                                    validator:
+                                                        ValidationBuilder()
+                                                            .minLength(1)
+                                                            .maxLength(45)
+                                                            .build(),
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    onChanged: (val) {},
+                                                    cursorColor: Colors.black87,
+                                                    decoration: InputDecoration(
+                                                        contentPadding:
+                                                            EdgeInsets.all(
+                                                                Width * 0.005),
+                                                        hoverColor: Colors
+                                                            .grey.shade300,
+                                                        hintText: "Diff",
+                                                        hintStyle: TextStyle(
+                                                          fontFamily: "sans",
+                                                          fontSize:
+                                                              Width * 0.01,
+                                                        ),
+                                                        hintFadeDuration:
+                                                            const Duration(
+                                                                seconds: 1),
+                                                        prefixIcon: Icon(
+                                                          Icons.numbers,
+                                                          size: Width * 0.015,
+                                                        ),
+                                                        fillColor:
+                                                            const Color.fromARGB(
+                                                                255, 229, 241, 248),
+                                                        filled: true,
+                                                        enabledBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                    width: 1,
+                                                                    color: Colors
+                                                                        .grey)),
+                                                        focusedBorder:
+                                                            const OutlineInputBorder(
+                                                                borderSide:
+                                                                    BorderSide(
+                                                                        width: 1,
+                                                                        color: Colors.black87)),
+                                                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(5))),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(
+                                              width: 10,
+                                            )
+                                            //
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                   Container(
                                     height: Height * 0.08,
@@ -3117,7 +3160,7 @@ class _CreateBillState extends State<CreateBill> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        // get multikissan fina grandtotal
+                                        // get multikissan final grandtotal
                                         Consumer<GrandtotalVisibleProvider>(
                                           builder: (context, value, child) =>
                                               Visibility(
@@ -3130,7 +3173,44 @@ class _CreateBillState extends State<CreateBill> {
                                                   Provider.of<MultiGrandtotal>(
                                                           context,
                                                           listen: false)
-                                                      .calc();
+                                                      .calc(
+                                                          double.parse(
+                                                              multiGrossController
+                                                                  .text
+                                                                  .toString()),
+                                                          double.parse(
+                                                              multiTareController
+                                                                  .text
+                                                                  .toString()));
+                                                  setState(() {
+                                                    multiAreaWtController
+                                                        .text = (Provider.of<
+                                                                    MultiGrandtotal>(
+                                                                context,
+                                                                listen: false)
+                                                            .multiAreaWt)
+                                                        .toString();
+                                                    multiWtDiffController
+                                                        .text = (Provider.of<
+                                                                    MultiGrandtotal>(
+                                                                context,
+                                                                listen: false)
+                                                            .multiWtDiff)
+                                                        .toString();
+                                                    rasController
+                                                        .text = (Provider.of<
+                                                                        MultiGrandtotal>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .nettWett /
+                                                            Provider.of<MultiGrandtotal>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .totalLungar)
+                                                        .toString();
+                                                  });
                                                 },
                                                 child: const Text(
                                                   "Get Wt",
@@ -3148,8 +3228,17 @@ class _CreateBillState extends State<CreateBill> {
                           ],
                         ),
                         SizedBox(
-                          height: Height * 0.05,
+                          height: Height * 0.03,
                         ),
+                        Divider(
+                          color: Colors.grey.shade500,
+                          endIndent: 40,
+                          indent: 40,
+                        ),
+                        Consumer<GrandtotalVisibleProvider>(
+                            builder: (context, value, child) => Visibility(
+                                visible: value.ismultikissan,
+                                child: const WtdiffTable())),
                         Divider(
                           color: Colors.grey.shade500,
                           endIndent: 40,
@@ -3612,6 +3701,61 @@ class _CreateBillState extends State<CreateBill> {
                                                   ),
                                                   SizedBox(
                                                     width: Width * 0.01,
+                                                  ),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              229,
+                                                              241,
+                                                              248),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                    ),
+                                                    height: Height * 0.035,
+                                                    width: Width * 0.03,
+                                                    child: DropdownButton(
+                                                      padding: EdgeInsets.all(
+                                                          Width * 0.0025),
+                                                      iconSize: Width * 0.01,
+                                                      underline: const Text(""),
+                                                      isExpanded: true,
+                                                      dropdownColor:
+                                                          Colors.white,
+                                                      style: TextStyle(
+                                                          fontFamily: "sans",
+                                                          fontSize:
+                                                              Width * 0.01,
+                                                          color:
+                                                              Colors.black87),
+                                                      value: ot,
+                                                      onChanged:
+                                                          (int? newValue) {
+                                                        setState(() {
+                                                          ot = newValue!;
+                                                        });
+                                                      },
+                                                      items: <int>[
+                                                        40,
+                                                        50,
+                                                        60,
+                                                        70,
+                                                        80,
+                                                        90
+                                                      ].map<
+                                                              DropdownMenuItem<
+                                                                  int>>(
+                                                          (int value) {
+                                                        return DropdownMenuItem<
+                                                            int>(
+                                                          value: value,
+                                                          child: Text(
+                                                              value.toString()),
+                                                        );
+                                                      }).toList(),
+                                                    ),
                                                   ),
                                                 ],
                                               ),
@@ -4154,7 +4298,7 @@ Future _addbill(context) async {
           selectedvyapari.text,
           vyapariid,
           vyaparicompany,
-          ras,
+          rasController.text,
           board,
           motorno,
           bhuktanpk,
@@ -4287,76 +4431,111 @@ Future _alreadyaccountcheck() async {
   return found;
 }
 
+_loosecalc() {
+  double mainwt = gross - tare;
+  if (_patiunit == "Percent") {
+    patiwt = mainwt * (patival / 100);
+    //to convert it in 2 decimal roudoff value
+    patiwt = double.parse(
+        ((patiwt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
+  } else {
+    patiwt = patival;
+  }
+
+  nettweight = ((mainwt - patiwt) / 100);
+  //to convert it in 2 decimal roudoff value
+  nettweight = double.parse(
+      ((nettweight * 1000).roundToDouble() / 1000).toStringAsFixed(2));
+
+  kissanamt = (nettweight * bhav).round().toDouble();
+  hammali = ((nettweight * (hammalipercent / 100)) * 100).round().toDouble();
+  commission =
+      ((nettweight * (commissionpercent / 100)) * 100).round().toDouble();
+  mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
+  subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
+  grandtotal = subtotal + ot + tcs;
+  //ras calc
+  rasController.text = (nettweight / lungar).toString();
+}
+
 _caratecalc() {
   double mainwt = gross - tare;
   if (_patiunit == "Percent") {
     patiwt = mainwt * patival / 100;
+    //to convert it in 2 decimal roudoff value
+    patiwt = double.parse(
+        ((patiwt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   } else {
     patiwt = patival;
   }
 
   if (_dandaunit == "Percent") {
-    dandawt = mainwt * dandaval / 100;
+    dandawt = (mainwt - patiwt) * dandaval / 100;
+    //to convert it in 2 decimal roudoff value
+    dandawt = double.parse(
+        ((dandawt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   } else {
     dandawt = dandaval;
   }
 
-  nettweight = ((mainwt - patiwt + dandawt) / 100).round().toDouble();
+  nettweight = ((mainwt - patiwt + dandawt) / 100);
+  //to convert it in 2 decimal roudoff value
+  nettweight = double.parse(
+      ((nettweight * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   kissanamt = (nettweight * bhav).round().toDouble();
-  hammali = (kissanamt * (hammalipercent / 100)).round().toDouble();
-  commission = (kissanamt * (commissionpercent / 100)).round().toDouble();
+  hammali = ((nettweight * (hammalipercent / 100)) * 100).round().toDouble();
+  commission =
+      ((nettweight * (commissionpercent / 100)) * 100).round().toDouble();
   mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
   grandtotal = subtotal + ot + tcs;
-}
-
-_loosecalc() {
-  double mainwt = gross - tare;
-  if (_patiunit == "Percent") {
-    patiwt = mainwt * (patival / 100);
-  } else {
-    patiwt = patival;
-  }
-
-  nettweight = ((mainwt - patiwt) / 100).round().toDouble();
-  kissanamt = (nettweight * bhav).round().toDouble();
-  hammali = (kissanamt * (hammalipercent / 100)).round().toDouble();
-
-  commission = (kissanamt * (commissionpercent / 100)).round().toDouble();
-  mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
-  subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
-  grandtotal = subtotal + ot + tcs;
+  //ras calc
+  rasController.text = (nettweight / lungar).toString();
 }
 
 _boxcalc() {
   double mainwt = gross - tare;
   if (_patiunit == "Percent") {
     patiwt = mainwt * patival / 100;
+    //to convert it in 2 decimal roudoff value
+    patiwt = double.parse(
+        ((patiwt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   } else {
     patiwt = patival;
   }
 
   if (_dandaunit == "Percent") {
-    dandawt = mainwt * dandaval / 100;
+    dandawt = (mainwt - patiwt) * dandaval / 100;
+    //to convert it in 2 decimal roudoff value
+    dandawt = double.parse(
+        ((dandawt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   } else {
     dandawt = dandaval;
   }
 
   if (_wastageunit == "Percent") {
     wastagewt = mainwt * wastageval / 100;
+    //to convert it in 2 decimal roudoff value
+    wastagewt = double.parse(
+        ((wastagewt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   } else {
     wastagewt = wastageval;
   }
 
-  nettweight =
-      ((mainwt - patiwt + dandawt + wastagewt) / 100).round().toDouble();
+  nettweight = ((mainwt - patiwt + dandawt + wastagewt) / 100);
+  //to convert it in 2 decimal roudoff value
+  nettweight = double.parse(
+      ((nettweight * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   kissanamt = (nettweight * bhav).round().toDouble();
-  hammali = (kissanamt * (hammalipercent / 100)).round().toDouble();
-  commission = (kissanamt * (commissionpercent / 100)).round().toDouble();
+  hammali = ((nettweight * (hammalipercent / 100)) * 100).round().toDouble();
+  commission =
+      ((nettweight * (commissionpercent / 100)) * 100).round().toDouble();
   mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
 
   grandtotal = subtotal + ot + tcs;
+  //ras calc
+  rasController.text = (nettweight / lungar).toString();
 }
 
 Future<void> multikissanbill(context) async {
@@ -4378,12 +4557,12 @@ Future<void> multikissanbill(context) async {
               vyapariid,
               vyaparicompany,
               vyapariaddress,
-              ras,
+              rasController.text,
               board,
               motorno,
               bhuktanpk,
               note),
-          await MultiGrandtotal().return_multikissanlist(),
+          await MultiGrandtotal().returnMultikissanlist(context),
           context);
     } else {
       Apputils().noInternetConnection(context);

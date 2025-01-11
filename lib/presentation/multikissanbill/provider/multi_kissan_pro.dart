@@ -45,11 +45,11 @@ class MultiKissanPro extends ChangeNotifier {
 
     double netwt = 0;
 
-    double kissanamt = 0;
+    double amount = 0;
 
     return {
       "name": name,
-      "kissan_id": kissanid,
+      "user_id": kissanid,
       "unit": unit,
       "pati": pati,
       "patiunit": patiunit,
@@ -64,7 +64,7 @@ class MultiKissanPro extends ChangeNotifier {
       "weight": weight,
       "netwt": netwt,
       "lungar": lungar,
-      "kissan_amt": kissanamt,
+      "amount": amount,
       "iskelagroup": false,
     };
   }
@@ -87,18 +87,28 @@ class MultiKissanPro extends ChangeNotifier {
     if (multikissan[index]["patiunit"] == "Percent") {
       multikissan[index]["patiwt"] =
           mainwt * (double.parse(multikissan[index]["pati"].text) / 100);
+      //to convert it in 2 decimal roudoff value
+      multikissan[index]["patiwt"] = double.parse(
+          ((multikissan[index]["patiwt"] * 1000).roundToDouble() / 1000)
+              .toStringAsFixed(2));
     } else {
       multikissan[index]["patiwt"] =
           double.parse(multikissan[index]["pati"].text);
     }
 
-    multikissan[index]["netwt"] =
-        ((mainwt - multikissan[index]["patiwt"]) / 100).round().toDouble();
+    multikissan[index]["netwt"] = (mainwt - multikissan[index]["patiwt"]);
 
-    multikissan[index]["kissan_amt"] = (multikissan[index]["netwt"] *
-            double.parse(multikissan[index]["bhav"].text.toString()))
-        .round()
-        .toDouble();
+    //to convert it in 2 decimal roudoff value
+    multikissan[index]["netwt"] = double.parse(
+        ((multikissan[index]["netwt"] * 1000).roundToDouble() / 1000)
+            .toStringAsFixed(2));
+
+    multikissan[index]["amount"] = (multikissan[index]["netwt"] *
+        double.parse(multikissan[index]["bhav"].text.toString()));
+    //to convert it in 2 decimal roudoff value
+    multikissan[index]["amount"] = double.parse(
+        ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
+            .toStringAsFixed(2));
   }
 
   caratecalc(index) {
@@ -107,6 +117,10 @@ class MultiKissanPro extends ChangeNotifier {
     if (multikissan[index]["patiunit"] == "Percent") {
       multikissan[index]["patiwt"] =
           mainwt * (double.parse(multikissan[index]["pati"].text) / 100);
+      //to convert it in 2 decimal roudoff value
+      multikissan[index]["patiwt"] = double.parse(
+          ((multikissan[index]["patiwt"] * 1000).roundToDouble() / 1000)
+              .toStringAsFixed(2));
     } else {
       multikissan[index]["patiwt"] =
           double.parse(multikissan[index]["pati"].text);
@@ -114,24 +128,29 @@ class MultiKissanPro extends ChangeNotifier {
     //
 
     if (multikissan[index]["dandaunit"] == "Percent") {
-      multikissan[index]["dandawt"] =
-          mainwt * (double.parse(multikissan[index]["danda"].text) / 100);
+      multikissan[index]["dandawt"] = (mainwt - multikissan[index]["patiwt"]) *
+          (double.parse(multikissan[index]["danda"].text) / 100);
+      //to convert it in 2 decimal roudoff value
+      multikissan[index]["dandawt"] = double.parse(
+          ((multikissan[index]["dandawt"] * 1000).roundToDouble() / 1000)
+              .toStringAsFixed(2));
     } else {
       multikissan[index]["dandawt"] =
           double.parse(multikissan[index]["danda"].text);
     }
 
-    multikissan[index]["netwt"] = ((mainwt -
-                multikissan[index]["patiwt"] +
-                multikissan[index]["dandawt"]) /
-            100)
-        .round()
-        .toDouble();
-
-    multikissan[index]["kissan_amt"] = (multikissan[index]["netwt"] *
-            double.parse(multikissan[index]["bhav"].text.toString()))
-        .round()
-        .toDouble();
+    multikissan[index]["netwt"] =
+        (mainwt - multikissan[index]["patiwt"] + multikissan[index]["dandawt"]);
+    //to convert it in 2 decimal roudoff value
+    multikissan[index]["netwt"] = double.parse(
+        ((multikissan[index]["netwt"] * 1000).roundToDouble() / 1000)
+            .toStringAsFixed(2));
+    multikissan[index]["amount"] = (multikissan[index]["netwt"] *
+        double.parse(multikissan[index]["bhav"].text.toString()));
+    //to convert it in 2 decimal roudoff value
+    multikissan[index]["amount"] = double.parse(
+        ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
+            .toStringAsFixed(2));
   }
 
   boxcalc(index) {
@@ -140,6 +159,10 @@ class MultiKissanPro extends ChangeNotifier {
     if (multikissan[index]["patiunit"] == "Percent") {
       multikissan[index]["patiwt"] =
           mainwt * (double.parse(multikissan[index]["pati"].text) / 100);
+      //to convert it in 2 decimal roudoff value
+      multikissan[index]["patiwt"] = double.parse(
+          ((multikissan[index]["patiwt"] * 1000).roundToDouble() / 1000)
+              .toStringAsFixed(2));
     } else {
       multikissan[index]["patiwt"] =
           double.parse(multikissan[index]["pati"].text);
@@ -147,8 +170,12 @@ class MultiKissanPro extends ChangeNotifier {
     //
 
     if (multikissan[index]["dandaunit"] == "Percent") {
-      multikissan[index]["dandawt"] =
-          mainwt * (double.parse(multikissan[index]["danda"].text) / 100);
+      multikissan[index]["dandawt"] = (mainwt - multikissan[index]["patiwt"]) *
+          (double.parse(multikissan[index]["danda"].text) / 100);
+      //to convert it in 2 decimal roudoff value
+      multikissan[index]["dandawt"] = double.parse(
+          ((multikissan[index]["dandawt"] * 1000).roundToDouble() / 1000)
+              .toStringAsFixed(2));
     } else {
       multikissan[index]["dandawt"] =
           double.parse(multikissan[index]["danda"].text);
@@ -158,46 +185,45 @@ class MultiKissanPro extends ChangeNotifier {
     if (multikissan[index]["wastageunit"] == "Percent") {
       multikissan[index]["wastagewt"] =
           mainwt * (double.parse(multikissan[index]["wastage"].text) / 100);
+      //to convert it in 2 decimal roudoff value
+      multikissan[index]["wastagewt"] = double.parse(
+          ((multikissan[index]["wastagewt"] * 1000).roundToDouble() / 1000)
+              .toStringAsFixed(2));
     } else {
       multikissan[index]["wastagewt"] =
           double.parse(multikissan[index]["wastage"].text);
     }
 
-    multikissan[index]["netwt"] = ((mainwt -
-                multikissan[index]["patiwt"] +
-                multikissan[index]["dandawt"] +
-                multikissan[index]["wastagewt"]) /
-            100)
-        .round()
-        .toDouble();
+    multikissan[index]["netwt"] = (mainwt -
+        multikissan[index]["patiwt"] +
+        multikissan[index]["dandawt"] +
+        multikissan[index]["wastagewt"]);
+    //to convert it in 2 decimal roudoff value
+    multikissan[index]["netwt"] = double.parse(
+        ((multikissan[index]["netwt"] * 1000).roundToDouble() / 1000)
+            .toStringAsFixed(2));
 
-    multikissan[index]["kissan_amt"] = (multikissan[index]["netwt"] *
-            double.parse(multikissan[index]["bhav"].text.toString()))
-        .round()
-        .toDouble();
+    multikissan[index]["amount"] = (multikissan[index]["netwt"] *
+        double.parse(multikissan[index]["bhav"].text.toString()));
+    //to convert it in 2 decimal roudoff value
+    multikissan[index]["amount"] = double.parse(
+        ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
+            .toStringAsFixed(2));
   }
 
   void kelagroupcalc(index, String hammali, String commission, String mtax) {
-    double ot = 40;
-    multikissan[index]["kissan_amt"] = (multikissan[index]["netwt"] *
-            double.parse(multikissan[index]["bhav"].text.toString()))
-        .round();
+    double ot = 50;
+    multikissan[index]["amount"] = (multikissan[index]["netwt"] *
+        double.parse(multikissan[index]["bhav"].text.toString()));
 
     double hammali0 =
-        (multikissan[index]["kissan_amt"] * (double.parse(hammali) / 100))
-            .round()
-            .toDouble();
+        (multikissan[index]["netwt"] * (double.parse(hammali) / 100));
     double commission0 =
-        (multikissan[index]["kissan_amt"] * (double.parse(commission) / 100))
-            .round()
-            .toDouble();
-    double mtax0 =
-        (multikissan[index]["kissan_amt"] * (double.parse(mtax) / 100))
-            .round()
-            .toDouble();
+        (multikissan[index]["netwt"] * (double.parse(commission) / 100));
+    double mtax0 = (multikissan[index]["amount"] * (double.parse(mtax) / 100));
 
-    multikissan[index]["kissan_amt"] =
-        (multikissan[index]["kissan_amt"] + hammali0 + commission0 + mtax0 + ot)
+    multikissan[index]["amount"] =
+        (multikissan[index]["amount"] + hammali0 + commission0 + mtax0 + ot)
             .round()
             .toDouble();
   }

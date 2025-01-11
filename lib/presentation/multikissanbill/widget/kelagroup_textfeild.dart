@@ -26,10 +26,9 @@ class KelagroupTextfeild extends StatelessWidget {
         );
       },
       onSelected: (dynamic val) {
-        print(val);
         typecontroller.text = val["name"];
         Provider.of<MultiKissanPro>(context, listen: false).multikissan[index]
-            ["kissan_id"] = val["kelagroup_id"];
+            ["user_id"] = val["kelagroup_id"];
       },
       suggestionsCallback: (search) async {
         return await _getdata(search, "kelagroup");

@@ -30,12 +30,19 @@ class BillandKhataAddingViewmodel {
   Future multiKissanbillAndKhataAmountupdate(Map<String, dynamic> bill,
       List<Map<String, dynamic>> multikissanList, BuildContext context) async {
     try {
-      Apputils().loader(context);
-      await BillandKhataAmountAdding().addMultiKissanbillAndKhataAmountupdate(
-        bill,
-        multikissanList,
-      );
-      Apputils().transactionSuccess(context, 4, "Transaction Successful");
+      multikissanList.isEmpty
+          ? Apputils().transactionUnsuccess(
+              context, "Oops! List is Empty transaction fail!")
+          : {
+              Apputils().loader(context),
+              await BillandKhataAmountAdding()
+                  .addMultiKissanbillAndKhataAmountupdate(
+                bill,
+                multikissanList,
+              ),
+              Apputils()
+                  .transactionSuccess(context, 4, "Transaction Successful"),
+            };
     } catch (e) {
       Apputils().transactionUnsuccess(
           context, "Oops! Something went wrong transaction fail!");

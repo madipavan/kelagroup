@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:kelawin/Models/billmodel.dart';
+import 'package:kelawin/Models/multikissan_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
@@ -647,8 +647,7 @@ pw.Widget _multikissanTable(
 
 List<pw.TableRow> _addrows(
     PdfColor color, Font bold, PdfColor textcolor, BillModel bill) {
-  List<Map<String, dynamic>> kissanlist =
-      _doNotreapeatbhav(bill.multiKissanList);
+  List<MultikissanModel> kissanlist = _doNotreapeatbhav(bill.multiKissanList);
 
   List<pw.TableRow> tableRows = [
     //kissan details bhav and all
@@ -705,7 +704,7 @@ List<pw.TableRow> _addrows(
   ];
 
   //converting kissandata into tablerows
-  for (var element in kissanlist) {
+  for (MultikissanModel element in kissanlist) {
     tableRows.add(
       pw.TableRow(
           decoration: pw.BoxDecoration(
@@ -718,7 +717,7 @@ List<pw.TableRow> _addrows(
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["lungar"].toString(),
+                element.lungar.toString(),
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                     font: bold, fontWeight: pw.FontWeight.bold, fontSize: 10),
@@ -727,7 +726,7 @@ List<pw.TableRow> _addrows(
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["netwt"].toString(),
+                element.netwt.toString(),
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                     font: bold, fontWeight: pw.FontWeight.bold, fontSize: 10),
@@ -736,7 +735,7 @@ List<pw.TableRow> _addrows(
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["bhav"].toString(),
+                element.bhav.toString(),
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                     font: bold, fontWeight: pw.FontWeight.bold, fontSize: 10),
@@ -745,7 +744,7 @@ List<pw.TableRow> _addrows(
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["amount"].toString(),
+                element.amount.toString(),
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                     font: bold, fontWeight: pw.FontWeight.bold, fontSize: 10),
@@ -782,7 +781,7 @@ List<pw.TableRow> _addrows(
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                bill.subtotal.toString(),
+                bill.kissanamt.toString(),
                 textAlign: pw.TextAlign.center,
                 style: pw.TextStyle(
                     font: bold, fontWeight: pw.FontWeight.bold, fontSize: 10),
@@ -794,28 +793,20 @@ List<pw.TableRow> _addrows(
   return tableRows;
 }
 
-List<Map<String, dynamic>> _doNotreapeatbhav(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>>? kissanlist) {
-  List<Map<String, dynamic>> finalList = [];
-  List<int> indexFordelete = [];
-  for (var element in kissanlist!) {
-    finalList.add({
-      "lungar": double.parse(element["lungar"]),
-      "netwt": element["netwt"],
-      "iskelagroup": element["iskelagroup"],
-      "bhav": double.parse(element["bhav"]),
-      "amount": element["amount"],
-    });
-  }
+List<MultikissanModel> _doNotreapeatbhav(List<MultikissanModel>? kissanlist) {
+  //to convert
+  List<MultikissanModel> convertedKissanList = kissanlist!;
 
-  for (int i = 0; i < finalList.length; i++) {
-    double currentBhav = finalList[i]["bhav"];
-    for (int j = i + 1; j < finalList.length; j++) {
-      if ((currentBhav == finalList[j]["bhav"]) &&
-          (finalList[j]["iskelagroup"] == false)) {
-        finalList[i]["netwt"] += finalList[j]["netwt"];
-        finalList[i]["amount"] += finalList[j]["amount"];
-        finalList[i]["lungar"] += finalList[j]["lungar"];
+  List<int> indexFordelete = [];
+
+  for (int i = 0; i < convertedKissanList.length; i++) {
+    double currentBhav = convertedKissanList[i].bhav;
+    for (int j = i + 1; j < convertedKissanList.length; j++) {
+      if ((currentBhav == convertedKissanList[j].bhav) &&
+          (convertedKissanList[j].iskelagroup == false)) {
+        convertedKissanList[i].netwt += convertedKissanList[j].netwt;
+        convertedKissanList[i].amount += convertedKissanList[j].amount;
+        convertedKissanList[i].lungar += convertedKissanList[j].lungar;
         indexFordelete.add(j);
       }
     }
@@ -823,11 +814,11 @@ List<Map<String, dynamic>> _doNotreapeatbhav(
     //loop for removing matched bhav
     for (int k = 0; k < indexFordelete.length; k++) {
       k == 0
-          ? finalList.removeAt(indexFordelete[k])
-          : finalList.removeAt(indexFordelete[k] - 1);
+          ? convertedKissanList.removeAt(indexFordelete[k])
+          : convertedKissanList.removeAt(indexFordelete[k] - 1);
     }
     indexFordelete.clear();
   }
 
-  return finalList;
+  return convertedKissanList;
 }

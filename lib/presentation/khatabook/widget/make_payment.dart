@@ -44,8 +44,6 @@ class _MakePaymentState extends State<MakePayment> {
 
   @override
   Widget build(BuildContext context) {
-    final Height = MediaQuery.of(context).size.height;
-    final Width = MediaQuery.of(context).size.width;
     return AlertDialog(
       backgroundColor: Colors.white,
       title: const Row(
@@ -169,13 +167,11 @@ class _MakePaymentState extends State<MakePayment> {
                     Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.all(Width * 0.003),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               color: Colors.white,
                               border: Border.all(width: 1, color: Colors.grey)),
-                          height: Height * 0.05,
-                          width: Width * 0.075,
                           child: InkWell(
                             onTap: () async {
                               var fromdate =
@@ -191,23 +187,21 @@ class _MakePaymentState extends State<MakePayment> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.calendar_month,
                                   color: Colors.grey,
-                                  size: Width * 0.01,
                                 ),
                                 Text(
                                   DateFormat('dd-MM-yyyy')
                                       .format(transactionRecievedDate),
-                                  style: TextStyle(
-                                      fontFamily: "sans",
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: Width * 0.008),
+                                  style: const TextStyle(
+                                    fontFamily: "sans",
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                Icon(
+                                const Icon(
                                   Icons.arrow_drop_down,
                                   color: Colors.grey,
-                                  size: Width * 0.01,
                                 ),
                               ],
                             ),

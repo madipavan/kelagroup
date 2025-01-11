@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kelawin/Modules/Editacc.dart';
 
@@ -28,12 +27,15 @@ class _EditaccountState extends State<Editaccount> {
   Future _getdata() async {
     var kissan = await FirebaseFirestore.instance.collection("kissan").get();
     var vyapari = await FirebaseFirestore.instance.collection("vyapari").get();
-    setState(() {
-      foundList = kissan.docs;
-      data = foundList;
-      kissanlist = kissan.docs;
-      vyaparilist = vyapari.docs;
-    });
+
+    if (mounted) {
+      setState(() {
+        foundList = kissan.docs;
+        data = foundList;
+        kissanlist = kissan.docs;
+        vyaparilist = vyapari.docs;
+      });
+    }
   }
 
   @override
@@ -119,7 +121,7 @@ class _EditaccountState extends State<Editaccount> {
                       onChanged: (String? newValue) async {
                         setState(() {
                           _searchval = newValue!;
-                          userid = _searchval.toLowerCase() + "_id";
+                          userid = "${_searchval.toLowerCase()}_id";
                           if (_searchval == "Kissan") {
                             foundList = kissanlist;
                           } else if (_searchval == "Vyapari") {
@@ -473,7 +475,7 @@ class _EditaccountState extends State<Editaccount> {
                                   height: Height * 0.06,
                                   child: Center(
                                     child: Text(
-                                      foundList[index]["$userid"].toString(),
+                                      foundList[index][userid].toString(),
                                       style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
@@ -537,7 +539,7 @@ class _EditaccountState extends State<Editaccount> {
                                               MaterialPageRoute(
                                                   builder: (context) => Editacc(
                                                         userid: foundList[index]
-                                                            ["$userid"],
+                                                            [userid],
                                                         role: foundList[index]
                                                             ["role"],
                                                       )));

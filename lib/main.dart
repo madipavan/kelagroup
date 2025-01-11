@@ -8,8 +8,11 @@ import 'package:provider/provider.dart';
 import 'viewmodel/calcWidgetVisibilty/grandtotalvisible_provider.dart';
 import 'viewmodel/multikissanbillcalc/multi_grandtotal.dart';
 
-void main() {
-  const MyApp()._datacon();
+void main() async {
+  //when adding real user account st id with 10,000 and also check searching of userid in readbill
+  //when creating first bill keep in mind to make changes in billmodel (invoiceno to bilno)
+  await const MyApp()._datacon();
+
   runApp(const MyApp());
 }
 
@@ -26,6 +29,7 @@ class MyApp extends StatelessWidget {
       ],
       builder: (context, child) => MaterialApp(
         theme: ThemeData(
+          fontFamily: "sans",
           textSelectionTheme: TextSelectionThemeData(
             selectionColor:
                 Colors.blueAccent.shade100, // Background color of selected text
@@ -53,3 +57,20 @@ class MyApp extends StatelessWidget {
     //         projectId: "aniket1-d3f36"));
   }
 }
+
+// Future _temp() async {
+//   print("object");
+//   try {
+//     var data = await FirebaseFirestore.instance.collection("Bills").get();
+//     for (var element in data.docs) {
+//       if (element["ismultikissan"] == false) {
+//         await element.reference.update({
+//           'lungar': double.parse(element["lungar"].toString()),
+//         });
+//       }
+//     }
+//     print("done");
+//   } catch (e) {
+//     print(e.toString());
+//   }
+// }

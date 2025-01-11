@@ -1,5 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kelawin/Models/billmodel.dart';
+import 'package:kelawin/Models/multikissan_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf/widgets.dart';
@@ -150,7 +150,7 @@ pw.Widget buildPrintableDataJantri(Font font, BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                billdata.isMultikissan ? "0.000" : billdata.gross.toString(),
+                billdata.gross.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -158,7 +158,7 @@ pw.Widget buildPrintableDataJantri(Font font, BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                billdata.isMultikissan ? "0.000" : billdata.tare.toString(),
+                billdata.tare.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -166,9 +166,7 @@ pw.Widget buildPrintableDataJantri(Font font, BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                billdata.isMultikissan
-                    ? "0.000"
-                    : ((billdata.gross! - billdata.tare!) / 100).toString(),
+                ((billdata.gross! - billdata.tare!) / 100).toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -184,7 +182,7 @@ pw.Widget buildPrintableDataJantri(Font font, BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                'null',
+                billdata.isMultikissan ? billdata.wtDiff.toString() : '0.0',
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -192,7 +190,7 @@ pw.Widget buildPrintableDataJantri(Font font, BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                'nul',
+                'null',
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -661,8 +659,8 @@ pw.Table _singleKissanTable(BillModel billdata) {
 }
 
 pw.Table _multiKissanTable(BillModel billdata) {
-  List<Map<String, dynamic>> kissanlist =
-      _fronJsonlist(billdata.multiKissanList);
+  List<MultikissanModel> kissanlist = billdata.multiKissanList!;
+
   //list of rows
   List<pw.TableRow> tableRows = [
     //firstrow
@@ -756,7 +754,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
     //firstrow
   ];
 //ading middle row
-  for (var element in kissanlist) {
+  for (MultikissanModel kissan in kissanlist) {
     tableRows.add(
       pw.TableRow(
           decoration: const pw.BoxDecoration(
@@ -766,7 +764,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["kissan_id"].toString(),
+                kissan.userId.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -774,7 +772,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["name"].toString(),
+                kissan.name.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -782,7 +780,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["lungar"].toString(),
+                kissan.lungar.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -790,7 +788,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["netwt"].toString(),
+                kissan.weight.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -798,7 +796,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["patiwt"].toString(),
+                kissan.patiwt.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -806,7 +804,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["dandawt"].toString(),
+                kissan.dandawt.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -814,7 +812,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["wastagewt"].toString(),
+                kissan.wastagewt.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -822,7 +820,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["netwt"].toString(),
+                kissan.netwt.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -830,7 +828,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["bhav"].toString(),
+                kissan.bhav.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -838,7 +836,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                element["amount"].toString(),
+                kissan.amount.toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -972,7 +970,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
   double,
   double,
   double,
-) _totalCalc(List<Map<String, dynamic>> kissanlist) {
+) _totalCalc(List<MultikissanModel> kissanlist) {
   double totalLungar = 0;
   double totalAreawt = 0;
   double totalPatiwt = 0;
@@ -982,14 +980,14 @@ pw.Table _multiKissanTable(BillModel billdata) {
 
   double totalAmount = 0;
 
-  for (var element in kissanlist) {
-    totalLungar += double.parse(element["lungar"]);
-    totalPatiwt += element["patiwt"];
-    totalDandawt += element["dandawt"];
-    totalWastagewt += element["wastagewt"];
-    totalNetwt += element["netwt"];
+  for (MultikissanModel element in kissanlist) {
+    totalLungar += element.lungar;
+    totalPatiwt += element.patiwt;
+    totalDandawt += element.dandawt;
+    totalWastagewt += element.wastagewt;
+    totalNetwt += element.netwt;
 
-    totalAmount += element["amount"];
+    totalAmount += element.amount;
   }
   return (
     totalLungar,
@@ -1000,26 +998,4 @@ pw.Table _multiKissanTable(BillModel billdata) {
     totalNetwt,
     totalAmount
   );
-}
-
-List<Map<String, dynamic>> _fronJsonlist(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>>? list) {
-  List<Map<String, dynamic>> convertedList = [];
-
-  for (var element in list!) {
-    convertedList.add({
-      "kissan_id": element["iskelagroup"]
-          ? element["kelagroup_id"]
-          : element["kissan_id"],
-      "name": element["name"],
-      "lungar": element["lungar"],
-      "netwt": element["netwt"],
-      "patiwt": element["patiwt"],
-      "dandawt": element["dandawt"],
-      "wastagewt": element["wastagewt"],
-      "bhav": element["bhav"],
-      "amount": element["amount"],
-    });
-  }
-  return convertedList;
 }

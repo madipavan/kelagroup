@@ -8,8 +8,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
-import 'package:kelawin/Modules/CreateBill.dart';
 import 'package:kelawin/Modules/Mainscreen.dart';
+import 'package:kelawin/presentation/billoperations/pages/CreateBill.dart';
 import 'package:kelawin/service/printing_invoices/Printinvoice.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
