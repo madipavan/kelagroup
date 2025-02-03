@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:kelawin/Models/billmodel.dart';
 import 'package:kelawin/Models/multikissan_model.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +10,7 @@ import '../../presentation/multikissanbill/provider/multi_kissan_pro.dart';
 class MultiGrandtotal extends ChangeNotifier {
   double kissanAmount = 0;
   double nettWett = 0;
-  double totalLungar = 0;
+  int totalLungar = 0;
 
   double multiGross = 0;
   double multiTare = 0;
@@ -25,11 +26,13 @@ class MultiGrandtotal extends ChangeNotifier {
 
   int ot = 40;
   double tcs = 0;
+  double tds = 0;
 
   int hammalipercent = 20;
   int commissionpercent = 15;
   int mtaxpercent = 1;
   int tcspercent = 0;
+  int tdspercent = 0;
 
   List<MultikissanModel> resettleMentKissanList = [];
 
@@ -51,8 +54,10 @@ class MultiGrandtotal extends ChangeNotifier {
       kissanAmount = kissanAmount + element["amount"];
       nettWett = nettWett + element["netwt"];
       totalLungar = totalLungar +
-          double.parse(
-              element["lungar"].text == "" ? "0" : element["lungar"].text);
+          ((element["lungar"].text.toString().isEmpty)
+                  ? 0
+                  : double.parse(element["lungar"].text))
+              .toInt();
       currentAreaWt =
           currentAreaWt + double.parse(element["weight"].text.toString());
     }
@@ -76,7 +81,7 @@ class MultiGrandtotal extends ChangeNotifier {
     multiAreaWt = double.parse(
         ((multiAreaWt * 1000).roundToDouble() / 1000).toStringAsFixed(2));
 
-    multiWtDiff = (multiAreaWt - currentAreaWt) / 100;
+    multiWtDiff = ((multiAreaWt / 100) - currentAreaWt);
     //to convert it in 2 decimal roudoff value
     multiWtDiff = double.parse(
         ((multiWtDiff * 1000).roundToDouble() / 1000).toStringAsFixed(2));
@@ -148,9 +153,9 @@ class MultiGrandtotal extends ChangeNotifier {
       context,
       invoiceno,
       date,
-      selectedkissan,
+      TextEditingController selectedkissan,
       kissanid,
-      selectedvyapari,
+      TextEditingController selectedvyapari,
       vyapariid,
       vyaparicompany,
       vyapariaddress,
@@ -159,46 +164,53 @@ class MultiGrandtotal extends ChangeNotifier {
       motorno,
       bhuktanpk,
       note) async {
-    return {
-      "bill_no": invoiceno,
-      "date": date,
-      "kissan_name": selectedkissan.text,
-      "kissan_id": kissanid,
-      "vyapari_name": selectedvyapari.text,
-      "vyapari_id": vyapariid,
-      "vyapari_company": vyaparicompany,
-      "vyapari_address": vyapariaddress,
-      "ras": ras,
-      "board": board,
-      "motorno": motorno,
-      "bhuktanpk": bhuktanpk,
-      "gross": Provider.of<MultiGrandtotal>(context, listen: false).multiGross,
-      "tare": Provider.of<MultiGrandtotal>(context, listen: false).multiTare,
-      "wtDiff":
-          Provider.of<MultiGrandtotal>(context, listen: false).multiWtDiff,
-      "nettweight":
-          Provider.of<MultiGrandtotal>(context, listen: false).nettWett,
-      "kissanamt":
-          Provider.of<MultiGrandtotal>(context, listen: false).kissanAmount,
-      "hammali": Provider.of<MultiGrandtotal>(context, listen: false).hammali,
-      "hammalipercent":
-          Provider.of<MultiGrandtotal>(context, listen: false).hammalipercent,
-      "commission":
-          Provider.of<MultiGrandtotal>(context, listen: false).commission,
-      "commissionpercent": Provider.of<MultiGrandtotal>(context, listen: false)
-          .commissionpercent,
-      "mtax": Provider.of<MultiGrandtotal>(context, listen: false).mtax,
-      "mtaxpercent":
-          Provider.of<MultiGrandtotal>(context, listen: false).mtaxpercent,
-      "ot": Provider.of<MultiGrandtotal>(context, listen: false).ot,
-      "tcs": Provider.of<MultiGrandtotal>(context, listen: false).tcs,
-      "subtotal": Provider.of<MultiGrandtotal>(context, listen: false).subTotal,
-      "grandtotal":
-          Provider.of<MultiGrandtotal>(context, listen: false).grandTotal,
-      "ismultikissan": true,
-      "adminname": "admin1",
-      "note": note,
-    };
+    Map<String, dynamic> multiKissanBill = BillModel(
+            invoiceno: invoiceno,
+            date: date,
+            selectedkissan: selectedkissan.text,
+            kissanid: kissanid,
+            selectedvyapari: selectedvyapari.text,
+            vyapariid: vyapariid,
+            vyaparicompany: vyaparicompany,
+            vyapariaddress: vyapariaddress,
+            ras: ras,
+            board: board,
+            motorno: motorno,
+            bhuktanpk: bhuktanpk,
+            gross:
+                Provider.of<MultiGrandtotal>(context, listen: false).multiGross,
+            tare:
+                Provider.of<MultiGrandtotal>(context, listen: false).multiTare,
+            wtDiff: Provider.of<MultiGrandtotal>(context, listen: false)
+                .multiWtDiff,
+            nettweight:
+                Provider.of<MultiGrandtotal>(context, listen: false).nettWett,
+            kissanamt: Provider.of<MultiGrandtotal>(context, listen: false)
+                .kissanAmount,
+            hammali:
+                Provider.of<MultiGrandtotal>(context, listen: false).hammali,
+            hammalipercent: Provider.of<MultiGrandtotal>(context, listen: false)
+                .hammalipercent,
+            commission:
+                Provider.of<MultiGrandtotal>(context, listen: false).commission,
+            commissionpercent:
+                Provider.of<MultiGrandtotal>(context, listen: false)
+                    .commissionpercent,
+            mtax: Provider.of<MultiGrandtotal>(context, listen: false).mtax,
+            mtaxpercent: Provider.of<MultiGrandtotal>(context, listen: false)
+                .mtaxpercent,
+            ot: Provider.of<MultiGrandtotal>(context, listen: false).ot,
+            tcs: Provider.of<MultiGrandtotal>(context, listen: false).tcs,
+            tds: Provider.of<MultiGrandtotal>(context, listen: false).tds,
+            subtotal:
+                Provider.of<MultiGrandtotal>(context, listen: false).subTotal,
+            grandtotal:
+                Provider.of<MultiGrandtotal>(context, listen: false).grandTotal,
+            adminId: 40000,
+            isMultikissan: true,
+            note: note)
+        .tomap();
+    return multiKissanBill;
   }
 
   Future<List<Map<String, dynamic>>> returnMultikissanlist(context) async {
@@ -210,7 +222,7 @@ class MultiGrandtotal extends ChangeNotifier {
             .resettleMentKissanList) {
       multikissanmodel = {
         "name": kissan.name,
-        "user_id": kissan.userId,
+        "userId": kissan.userId,
         "unit": kissan.unit,
         "pati": kissan.pati,
         "patiunit": kissan.patiunit,

@@ -166,7 +166,7 @@ pw.Widget buildPrintableDataJantri(Font font, BillModel billdata) {
             pw.Padding(
               padding: const pw.EdgeInsets.all(8.0),
               child: pw.Text(
-                ((billdata.gross! - billdata.tare!) / 100).toString(),
+                ((billdata.gross - billdata.tare) / 100).toString(),
                 textAlign: pw.TextAlign.center,
                 style: const pw.TextStyle(fontSize: 10),
               ),
@@ -514,7 +514,7 @@ pw.Table _singleKissanTable(BillModel billdata) {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8.0),
                 child: pw.Text(
-                  ((billdata.gross! - billdata.tare!) / 100).toString(),
+                  ((billdata.gross - billdata.tare) / 100).toString(),
                   textAlign: pw.TextAlign.center,
                   style: const pw.TextStyle(fontSize: 10),
                 ),
@@ -601,7 +601,7 @@ pw.Table _singleKissanTable(BillModel billdata) {
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8.0),
                 child: pw.Text(
-                  ((billdata.gross! - billdata.tare!) / 100).toString(),
+                  ((billdata.gross - billdata.tare) / 100).toString(),
                   textAlign: pw.TextAlign.center,
                   style: const pw.TextStyle(fontSize: 10),
                 ),
@@ -923,7 +923,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
           pw.Padding(
             padding: const pw.EdgeInsets.all(8.0),
             child: pw.Text(
-              totalNetwt.toString(),
+              billdata.nettweight.toString(),
               textAlign: pw.TextAlign.center,
               style: const pw.TextStyle(fontSize: 10),
             ),
@@ -939,7 +939,7 @@ pw.Table _multiKissanTable(BillModel billdata) {
           pw.Padding(
             padding: const pw.EdgeInsets.all(8.0),
             child: pw.Text(
-              totalAmount.toString(),
+              billdata.kissanamt.toString(),
               textAlign: pw.TextAlign.center,
               style: const pw.TextStyle(fontSize: 10),
             ),
@@ -986,9 +986,11 @@ pw.Table _multiKissanTable(BillModel billdata) {
     totalDandawt += element.dandawt;
     totalWastagewt += element.wastagewt;
     totalNetwt += element.netwt;
+    totalAreawt += element.weight;
 
     totalAmount += element.amount;
   }
+
   return (
     totalLungar,
     totalAreawt,

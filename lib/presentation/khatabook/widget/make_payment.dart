@@ -3,15 +3,15 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
 import 'package:kelawin/Models/transaction_model.dart';
 import 'package:kelawin/Models/user_model.dart';
-import 'package:kelawin/presentation/khatabook/page/Khatabook.dart';
 import 'package:kelawin/presentation/khatabook/widget/customtext_field.dart';
 
 import '../../../viewmodel/khata_viewmodel/add_delete_transaction_onserver.dart';
 
 class MakePayment extends StatefulWidget {
-  final UserModel user;
+  final UserModel selectedUser;
   final List<int> billNumbers;
-  const MakePayment({super.key, required this.user, required this.billNumbers});
+  const MakePayment(
+      {super.key, required this.selectedUser, required this.billNumbers});
 
   @override
   State<MakePayment> createState() => _MakePaymentState();
@@ -33,13 +33,20 @@ TextEditingController amount = TextEditingController();
 class _MakePaymentState extends State<MakePayment> {
   @override
   void initState() {
-    userName.text = user.name;
-    userId.text = user.userId.toString();
-
-    _billNumbers = _sortTheBillnumbers(widget.billNumbers);
-
+    _getDetails();
     // TODO: implement initState
     super.initState();
+  }
+
+  _getDetails() async {
+    if (mounted) {
+      setState(() {
+        userName.text = widget.selectedUser.name;
+        userId.text = widget.selectedUser.userId.toString();
+
+        _billNumbers = _sortTheBillnumbers(widget.billNumbers);
+      });
+    }
   }
 
   @override
@@ -316,18 +323,18 @@ class _MakePaymentState extends State<MakePayment> {
                                 date: DateFormat('dd-MM-yyyy')
                                     .format(transactionRecievedDate)
                                     .toString(),
-                                khataId: "",
+                                khataId: 0,
                                 amount: double.parse(amount.text),
-                                billno: selectedBill,
+                                invoiceno: selectedBill,
                                 paymentMode: paymentMode,
                                 receiverName: receiverName.text,
-                                userId: user.userId.toString());
+                                userId: widget.selectedUser.userId);
                             if (await InternetConnectionChecker()
                                 .hasConnection) {
                               if (_formkey.currentState!.validate()) {
                                 AddDeleteTransactionOnserver()
-                                    .addTransactionOnServer(
-                                        transaction, user.role, context);
+                                    .addTransactionOnServer(transaction,
+                                        widget.selectedUser.role, context);
                               }
                             }
                           },
@@ -364,7 +371,7 @@ class _MakePaymentState extends State<MakePayment> {
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                       Text(
-                        user.role,
+                        widget.selectedUser.role,
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                     ],
@@ -377,7 +384,7 @@ class _MakePaymentState extends State<MakePayment> {
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                       Text(
-                        user.name,
+                        widget.selectedUser.name,
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                     ],
@@ -390,7 +397,7 @@ class _MakePaymentState extends State<MakePayment> {
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                       Text(
-                        user.userId.toString(),
+                        widget.selectedUser.userId.toString(),
                         style: TextStyle(color: Colors.grey.shade500),
                       ),
                     ],

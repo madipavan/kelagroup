@@ -10,6 +10,14 @@ class UserModel {
   String company;
   String email;
   int userId;
+  String aadhar;
+  String panCard;
+  String branch;
+  int ledgerGroupId;
+
+  int commissionPercent;
+  int hammaliPercent;
+  String note;
 
   UserModel({
     required this.name,
@@ -23,6 +31,13 @@ class UserModel {
     required this.company,
     required this.email,
     required this.userId,
+    required this.aadhar,
+    required this.panCard,
+    required this.branch,
+    required this.ledgerGroupId,
+    required this.commissionPercent,
+    required this.hammaliPercent,
+    required this.note,
   });
 
   factory UserModel.fromJson(Map user) {
@@ -31,13 +46,43 @@ class UserModel {
       password: user["password"],
       address: user["address"],
       city: user["city"],
-      company: user["role"] == "kissan" ? "" : user["company"],
+      company: user["company"],
       email: user["email"],
       phone: user["phone"],
       pincode: user["pincode"],
       role: user["role"],
       state: user["state"],
-      userId: user["${user["role"]}_id"],
+      userId: user["userId"],
+      aadhar: user["aadhar"],
+      panCard: user["panCard"],
+      branch: user["branch"],
+      ledgerGroupId: user["ledgerGroupId"],
+      commissionPercent: user["commissionPercent"],
+      hammaliPercent: user["hammaliPercent"],
+      note: user["note"],
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "name": name,
+      "password": password,
+      "address": address,
+      "city": city,
+      "company": company,
+      "email": email,
+      "phone": phone,
+      "pincode": pincode,
+      "role": role,
+      "state": state,
+      "userId": userId,
+      "aadhar": aadhar,
+      "panCard": panCard,
+      "branch": branch,
+      "ledgerGroupId": ledgerGroupId,
+      "commissionPercent": commissionPercent,
+      "hammaliPercent": hammaliPercent,
+      "note": note,
+    };
   }
 }

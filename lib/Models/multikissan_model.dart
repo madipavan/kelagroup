@@ -5,7 +5,7 @@ class MultikissanModel {
   double wastage;
   double bhav;
   double weight;
-  double lungar;
+  int lungar;
   String unit;
   String patiunit;
   String dandaunit;
@@ -50,18 +50,21 @@ class MultikissanModel {
         wastage: double.parse(kissan["wastage"].text),
         bhav: double.parse(kissan["bhav"].text),
         weight: double.parse(kissan["weight"].text),
-        lungar: double.parse(kissan["lungar"].text),
+        lungar: ((kissan["lungar"].text.toString().isEmpty)
+                ? 0
+                : double.parse(kissan["lungar"].text))
+            .toInt(),
         unit: kissan["unit"],
         patiunit: kissan["patiunit"],
         dandaunit: kissan["dandaunit"],
         wastageunit: kissan["wastageunit"],
-        userId: kissan["user_id"],
+        userId: kissan["userId"],
         patiwt: kissan["patiwt"],
         dandawt: kissan["dandawt"],
         wastagewt: kissan["wastagewt"],
         netwt: kissan["netwt"],
         iskelagroup: kissan["iskelagroup"],
-        amount: kissan["amount"]);
+        amount: double.parse(kissan["amount"].toString()));
   }
 
   factory MultikissanModel.toJson(Map kissan) {
@@ -77,7 +80,7 @@ class MultikissanModel {
         patiunit: kissan["patiunit"],
         dandaunit: kissan["dandaunit"],
         wastageunit: kissan["wastageunit"],
-        userId: kissan["user_id"],
+        userId: kissan["userId"],
         patiwt: kissan["patiwt"],
         dandawt: kissan["dandawt"],
         wastagewt: kissan["wastagewt"],

@@ -27,15 +27,14 @@ class PrintDocuments {
     color,
     invoiceno,
   ) async {
-    print(invoiceno);
     Apputils().loader(context);
     //fetching bill data
     BillModel? billdata = await GetBillFromServer().getbill(invoiceno);
 
     //fetching vyapari khata
-    List<dynamic> khatalists = await _getpdfkhata(billdata!.vyapariid);
+    KhataModel khata = await _getpdfkhata(billdata!.vyapariid);
     //fetching vyapari phone
-    String vyapariphone = await _getvyapariDetail(billdata.vyapariid);
+    String vyapariphone = _getvyapariDetail(billdata.vyapariid).toString();
     //converting amount in words
     var converter = NumberToCharacterConverter('en');
     //converting grandtotal in words
@@ -62,7 +61,7 @@ class PrintDocuments {
         pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) {
           return buildPrintableDataInvoice(yourFont, billcolor, textcolor, bold,
-              billdata, khatalists, amtinwords, vyapariphone);
+              billdata, khata, amtinwords, vyapariphone);
         }));
 
     await Printing.layoutPdf(
@@ -91,20 +90,23 @@ class PrintDocuments {
     }
   }
 
-  Future _getpdfkhata(id) async {
+  Future<KhataModel> _getpdfkhata(id) async {
     try {
       QuerySnapshot<Map<String, dynamic>> data = await FirebaseFirestore
           .instance
-          .collection("vyapari_khata")
-          .where("vyapari_id", isEqualTo: id)
+          .collection("Khata")
+          .where("vyapariid", isEqualTo: id)
           .get();
 
-      return data.docs;
+      KhataModel khata = KhataModel.fromJson(data);
+
+      return khata;
     } catch (e) {
       // Handle errors
-
+      KhataModel khata =
+          KhataModel(khataId: 0, received: 0, total: 0, due: 0, userId: 0);
       print("Error fetching data: $e");
-      return [];
+      return khata;
     }
   }
 
@@ -262,7 +264,7 @@ Future<List<Map>> _getNarrationsForTransaction(
       });
     } else {
       BillModel? bill =
-          await GetBillFromServer().getbill(transactionsList[j].billno);
+          await GetBillFromServer().getbill(transactionsList[j].invoiceno);
       if (bill!.isMultikissan) {
         double totalLungar = 0;
         for (MultikissanModel element in bill.multiKissanList!) {

@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kelawin/Models/firmtransaction_model.dart';
 import 'package:kelawin/Models/transaction_model.dart';
 
 class BillandKhataAmountAdding {
   final firebase = FirebaseFirestore.instance;
   Future addBillandVyapariKhataAmountupdate(
     Map<String, dynamic> bill,
-    int vyapariId,
-    double vyapariAmount,
-    int kissanId,
-    double kissanAmount,
   ) async {
     try {
       WriteBatch batch = firebase.batch();
@@ -18,79 +15,160 @@ class BillandKhataAmountAdding {
 
       //khata updation vyapari
       QuerySnapshot vyaparidoc = await firebase
-          .collection("vyapari_khata")
-          .where("vyapari_id", isEqualTo: vyapariId)
+          .collection("Khata")
+          .where("userId", isEqualTo: bill["vyapariid"])
           .get();
 
       final vyaparidocId = vyaparidoc.docs[0].id;
-      double vyapariTotal = vyaparidoc.docs[0]["Total"] + vyapariAmount;
-      double vyapariDue = vyapariTotal - vyaparidoc.docs[0]["Recieved"];
+      double vyapariTotal = vyaparidoc.docs[0]["total"] + bill["grandtotal"];
+      double vyapariDue = vyapariTotal - vyaparidoc.docs[0]["received"];
 
       //khata updation vyapari
 
       //vyapari transaction
       QuerySnapshot vyapariTransactiondoc = await firebase
           .collection("vyapari_transaction")
-          .orderBy("transaction_id", descending: true)
+          .orderBy("transactionId", descending: true)
           .limit(1)
           .get();
 
       int vyapariNewTransactionId =
-          vyapariTransactiondoc.docs[0]["transaction_id"] + 1;
+          vyapariTransactiondoc.docs[0]["transactionId"] + 1;
       Map<String, dynamic> vyapariTransaction = TransactionModel(
-              billno: bill["bill_no"],
+              invoiceno: bill["invoiceno"],
               amount: bill["grandtotal"],
               date: bill["date"],
-              khataId: vyaparidoc.docs[0]["khata_id"].toString(),
+              khataId: vyaparidoc.docs[0]["khataId"],
               transactionId: vyapariNewTransactionId,
               transactionType: "DEBIT",
-              userId: vyapariId.toString())
+              userId: bill["vyapariid"])
           .convertTomap();
       //vyapari transaction
 
-      //kissan updation vyapari
+      //khata updation kissan
       QuerySnapshot kissandoc = await firebase
-          .collection("kissan_khata")
-          .where("kissan_id", isEqualTo: kissanId)
+          .collection("Khata")
+          .where("userId", isEqualTo: bill["kissanid"])
           .get();
 
       final kissandocId = kissandoc.docs[0].id;
-      double kissanTotal = kissandoc.docs[0]["Total"] + kissanAmount;
-      double kissanDue = kissanTotal - kissandoc.docs[0]["Recieved"];
+      double kissanTotal = kissandoc.docs[0]["total"] + bill["kissanamt"];
+      double kissanDue = kissanTotal - kissandoc.docs[0]["received"];
 
       //khata updation kissan
       //kissan transaction
       QuerySnapshot kissanTransactiondoc = await firebase
           .collection("kissan_transaction")
-          .orderBy("transaction_id", descending: true)
+          .orderBy("transactionId", descending: true)
           .limit(1)
           .get();
 
       int kissanNewTransactionId =
-          kissanTransactiondoc.docs[0]["transaction_id"] + 1;
+          kissanTransactiondoc.docs[0]["transactionId"] + 1;
       Map<String, dynamic> kissanTransaction = TransactionModel(
-              billno: bill["bill_no"],
+              invoiceno: bill["invoiceno"],
               amount: bill["kissanamt"],
               date: bill["date"],
-              khataId: kissandoc.docs[0]["khata_id"].toString(),
+              khataId: kissandoc.docs[0]["khataId"],
               transactionId: kissanNewTransactionId,
-              transactionType: "DEBIT",
-              userId: kissanId.toString())
+              transactionType: "CREDIT",
+              userId: bill["kissanid"])
           .convertTomap();
       //kissan transaction
+      //mandi transaction
+      DocumentReference<Map<String, dynamic>> mandiKhatadoc =
+          firebase.collection("firm_khata").doc("mandi");
+      batch
+          .update(mandiKhatadoc, {"total": FieldValue.increment(bill["mtax"])});
+      final mandiTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> mandiTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "mandi",
+              invoiceno: bill["invoiceno"],
+              amount: bill["mtax"])
+          .convertTomap();
+      batch.set(mandiTransactionRef, mandiTransaction);
+      //mandi transaction
+      //hammali transaction
+      DocumentReference<Map<String, dynamic>> hammaliKhatadoc =
+          firebase.collection("firm_khata").doc("hammali");
+      batch.update(
+          hammaliKhatadoc, {"total": FieldValue.increment(bill["hammali"])});
+      final hammaliTransactionRef =
+          firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> hammaliTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "hammali",
+              invoiceno: bill["invoiceno"],
+              amount: bill["hammali"])
+          .convertTomap();
+      batch.set(hammaliTransactionRef, hammaliTransaction);
+      //hammali transaction
+      //commission transaction
+      DocumentReference<Map<String, dynamic>> commissionKhatadoc =
+          firebase.collection("firm_khata").doc("commission");
+      batch.update(commissionKhatadoc,
+          {"total": FieldValue.increment(bill["commission"])});
+      final commissionTransactionRef =
+          firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> commissionTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "commission",
+              invoiceno: bill["invoiceno"],
+              amount: bill["commission"])
+          .convertTomap();
+      batch.set(commissionTransactionRef, commissionTransaction);
+      //commission transaction
+      //ot transaction
+      DocumentReference<Map<String, dynamic>> otKhatadoc =
+          firebase.collection("firm_khata").doc("ot");
+      batch.update(otKhatadoc, {"total": FieldValue.increment(bill["ot"])});
+      final otTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> otTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "ot",
+              invoiceno: bill["invoiceno"],
+              amount: bill["ot"])
+          .convertTomap();
+      batch.set(otTransactionRef, otTransaction);
+      //ot transaction
+      //tcs transaction
+      DocumentReference<Map<String, dynamic>> tcsKhatadoc =
+          firebase.collection("firm_khata").doc("tcs");
+      batch.update(tcsKhatadoc, {"total": FieldValue.increment(bill["tcs"])});
+      final tcsTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> tcsTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "tcs",
+              invoiceno: bill["invoiceno"],
+              amount: bill["tcs"])
+          .convertTomap();
+      batch.set(tcsTransactionRef, tcsTransaction);
+      //tcs transaction
+      //tds transaction
+      DocumentReference<Map<String, dynamic>> tdsKhatadoc =
+          firebase.collection("firm_khata").doc("tds");
+      batch.update(tdsKhatadoc, {"total": FieldValue.increment(bill["tds"])});
+      final tdsTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> tdsTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "tds",
+              invoiceno: bill["invoiceno"],
+              amount: bill["tds"])
+          .convertTomap();
+      batch.set(tdsTransactionRef, tdsTransaction);
+      //tds transaction
 
-      final vyapariKhataRef =
-          firebase.collection("vyapari_khata").doc(vyaparidocId);
+      final vyapariKhataRef = firebase.collection("Khata").doc(vyaparidocId);
       final vyapariTransactionRef =
           firebase.collection("vyapari_transaction").doc();
       final kissanTransactionRef =
           firebase.collection("kissan_transaction").doc();
-      final kissanKhataRef =
-          firebase.collection("kissan_khata").doc(kissandocId);
+      final kissanKhataRef = firebase.collection("Khata").doc(kissandocId);
 
       batch.set(billsRef, bill);
-      batch.update(vyapariKhataRef, {"Total": vyapariTotal, "Due": vyapariDue});
-      batch.update(kissanKhataRef, {"Total": kissanTotal, "Due": kissanDue});
+      batch.update(vyapariKhataRef, {"total": vyapariTotal, "due": vyapariDue});
+      batch.update(kissanKhataRef, {"total": kissanTotal, "due": kissanDue});
       batch.set(vyapariTransactionRef, vyapariTransaction);
       batch.set(kissanTransactionRef, kissanTransaction);
       //final to comit batch
@@ -127,36 +205,35 @@ class BillandKhataAmountAdding {
 
       //khata updation vyapari
       QuerySnapshot vyaparidoc = await firebase
-          .collection("vyapari_khata")
-          .where("vyapari_id", isEqualTo: bill["vyapari_id"])
+          .collection("Khata")
+          .where("userId", isEqualTo: bill["vyapariid"])
           .get();
 
       final vyaparidocId = vyaparidoc.docs[0].id;
 
-      double vyapariTotal = vyaparidoc.docs[0]["Total"] + bill["grandtotal"];
-      double vyapariDue = vyapariTotal - vyaparidoc.docs[0]["Recieved"];
-      final vyapariKhataRef =
-          firebase.collection("vyapari_khata").doc(vyaparidocId);
-      batch.update(vyapariKhataRef, {"Total": vyapariTotal, "Due": vyapariDue});
+      double vyapariTotal = vyaparidoc.docs[0]["total"] + bill["grandtotal"];
+      double vyapariDue = vyapariTotal - vyaparidoc.docs[0]["received"];
+      final vyapariKhataRef = firebase.collection("Khata").doc(vyaparidocId);
+      batch.update(vyapariKhataRef, {"total": vyapariTotal, "due": vyapariDue});
 
       //khata updation vyapari
       //vyapari transaction
       QuerySnapshot vyapariTransactiondoc = await firebase
           .collection("vyapari_transaction")
-          .orderBy("transaction_id", descending: true)
+          .orderBy("transactionId", descending: true)
           .limit(1)
           .get();
 
       int vyapariNewTransactionId =
-          vyapariTransactiondoc.docs[0]["transaction_id"] + 1;
+          vyapariTransactiondoc.docs[0]["transactionId"] + 1;
       Map<String, dynamic> vyapariTransaction = TransactionModel(
-              billno: bill["bill_no"],
+              invoiceno: bill["invoiceno"],
               amount: bill["grandtotal"],
               date: bill["date"],
-              khataId: vyaparidoc.docs[0]["khata_id"].toString(),
+              khataId: vyaparidoc.docs[0]["khataId"],
               transactionId: vyapariNewTransactionId,
               transactionType: "DEBIT",
-              userId: bill["vyapari_id"].toString())
+              userId: bill["vyapariid"])
           .convertTomap();
 
       final vyapariTransactionRef =
@@ -170,40 +247,40 @@ class BillandKhataAmountAdding {
         if (element["iskelagroup"]) {
           //khata kelagroup
           QuerySnapshot kelagroupdoc = await firebase
-              .collection("kelagroup_khata")
-              .where("kelagroup_id", isEqualTo: element["user_id"])
+              .collection("Khata")
+              .where("userId", isEqualTo: element["userId"])
               .get();
 
           final kelagroupdocId = kelagroupdoc.docs[0].id;
 
           double kelagroupTotal =
-              kelagroupdoc.docs[0]["Total"] + element["amount"];
+              kelagroupdoc.docs[0]["total"] + element["amount"];
           double kelagroupDue =
-              kelagroupTotal - kelagroupdoc.docs[0]["Recieved"];
+              kelagroupTotal - kelagroupdoc.docs[0]["received"];
 
           final kelagroupKhataRef =
-              firebase.collection("kelagroup_khata").doc(kelagroupdocId);
+              firebase.collection("Khata").doc(kelagroupdocId);
           batch.update(kelagroupKhataRef,
-              {"Total": kelagroupTotal, "Due": kelagroupDue});
+              {"total": kelagroupTotal, "due": kelagroupDue});
           //khata kelagroup
 
           //kelagroup transaction
           QuerySnapshot kelagroupTransactiondoc = await firebase
               .collection("kelagroup_transaction")
-              .orderBy("transaction_id", descending: true)
+              .orderBy("transactionId", descending: true)
               .limit(1)
               .get();
 
           int kelagroupNewTransactionId =
-              kelagroupTransactiondoc.docs[0]["transaction_id"] + 1;
+              kelagroupTransactiondoc.docs[0]["transactionId"] + 1;
           Map<String, dynamic> kelagroupTransaction = TransactionModel(
-                  billno: bill["bill_no"],
+                  invoiceno: bill["invoiceno"],
                   amount: element["amount"],
                   date: bill["date"],
-                  khataId: kelagroupdoc.docs[0]["khata_id"].toString(),
+                  khataId: kelagroupdoc.docs[0]["khataId"],
                   transactionId: kelagroupNewTransactionId,
-                  transactionType: "DEBIT",
-                  userId: element["kelagroup_id"].toString())
+                  transactionType: "CREDIT",
+                  userId: element["userId"])
               .convertTomap();
 
           final kelagroupTransactionRef =
@@ -213,37 +290,36 @@ class BillandKhataAmountAdding {
         } else {
           //kissan khata
           QuerySnapshot kissandoc = await firebase
-              .collection("kissan_khata")
-              .where("kissan_id", isEqualTo: element["user_id"])
+              .collection("Khata")
+              .where("userId", isEqualTo: element["userId"])
               .get();
 
           final kissandocId = kissandoc.docs[0].id;
-          double kissanTotal = kissandoc.docs[0]["Total"] + element["amount"];
-          double kissanDue = kissanTotal - kissandoc.docs[0]["Recieved"];
+          double kissanTotal = kissandoc.docs[0]["total"] + element["amount"];
+          double kissanDue = kissanTotal - kissandoc.docs[0]["received"];
 
-          final kissanKhataRef =
-              firebase.collection("kissan_khata").doc(kissandocId);
+          final kissanKhataRef = firebase.collection("Khata").doc(kissandocId);
           batch
-              .update(kissanKhataRef, {"Total": kissanTotal, "Due": kissanDue});
+              .update(kissanKhataRef, {"total": kissanTotal, "due": kissanDue});
           //kissan khata
           //kissan transaction
           QuerySnapshot kissanTransactiondoc = await firebase
               .collection("kissan_transaction")
-              .orderBy("transaction_id", descending: true)
+              .orderBy("transactionId", descending: true)
               .limit(1)
               .get();
 
           int kissanNewTransactionId =
-              kissanTransactiondoc.docs[0]["transaction_id"] + 1;
+              kissanTransactiondoc.docs[0]["transactionId"] + 1;
 
           Map<String, dynamic> kissanTransaction = TransactionModel(
-                  billno: bill["bill_no"],
+                  invoiceno: bill["invoiceno"],
                   amount: element["amount"],
                   date: bill["date"],
-                  khataId: kissandoc.docs[0]["khata_id"].toString(),
+                  khataId: kissandoc.docs[0]["khataId"],
                   transactionId: kissanNewTransactionId,
-                  transactionType: "DEBIT",
-                  userId: element["kissan_id"].toString())
+                  transactionType: "CREDIT",
+                  userId: element["userId"])
               .convertTomap();
 
           final kissanTransactionRef =
@@ -254,13 +330,96 @@ class BillandKhataAmountAdding {
       }
       //khata update multikissan and kelagroup
 
+      //mandi transaction
+      DocumentReference<Map<String, dynamic>> mandiKhatadoc =
+          firebase.collection("firm_khata").doc("mandi");
+      batch
+          .update(mandiKhatadoc, {"total": FieldValue.increment(bill["mtax"])});
+      final mandiTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> mandiTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "mandi",
+              invoiceno: bill["invoiceno"],
+              amount: bill["mtax"])
+          .convertTomap();
+      batch.set(mandiTransactionRef, mandiTransaction);
+      //mandi transaction
+      //hammali transaction
+      DocumentReference<Map<String, dynamic>> hammaliKhatadoc =
+          firebase.collection("firm_khata").doc("hammali");
+      batch.update(
+          hammaliKhatadoc, {"total": FieldValue.increment(bill["hammali"])});
+      final hammaliTransactionRef =
+          firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> hammaliTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "hammali",
+              invoiceno: bill["invoiceno"],
+              amount: bill["hammali"])
+          .convertTomap();
+      batch.set(hammaliTransactionRef, hammaliTransaction);
+      //hammali transaction
+      //commission transaction
+      DocumentReference<Map<String, dynamic>> commissionKhatadoc =
+          firebase.collection("firm_khata").doc("commission");
+      batch.update(commissionKhatadoc,
+          {"total": FieldValue.increment(bill["commission"])});
+      final commissionTransactionRef =
+          firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> commissionTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "commission",
+              invoiceno: bill["invoiceno"],
+              amount: bill["commission"])
+          .convertTomap();
+      batch.set(commissionTransactionRef, commissionTransaction);
+      //commission transaction
+      //ot transaction
+      DocumentReference<Map<String, dynamic>> otKhatadoc =
+          firebase.collection("firm_khata").doc("ot");
+      batch.update(otKhatadoc, {"total": FieldValue.increment(bill["ot"])});
+      final otTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> otTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "ot",
+              invoiceno: bill["invoiceno"],
+              amount: bill["ot"])
+          .convertTomap();
+      batch.set(otTransactionRef, otTransaction);
+      //ot transaction
+      //tcs transaction
+      DocumentReference<Map<String, dynamic>> tcsKhatadoc =
+          firebase.collection("firm_khata").doc("tcs");
+      batch.update(tcsKhatadoc, {"total": FieldValue.increment(bill["tcs"])});
+      final tcsTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> tcsTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "tcs",
+              invoiceno: bill["invoiceno"],
+              amount: bill["tcs"])
+          .convertTomap();
+      batch.set(tcsTransactionRef, tcsTransaction);
+      //tcs transaction
+      //tds transaction
+      DocumentReference<Map<String, dynamic>> tdsKhatadoc =
+          firebase.collection("firm_khata").doc("tds");
+      batch.update(tdsKhatadoc, {"total": FieldValue.increment(bill["tds"])});
+      final tdsTransactionRef = firebase.collection("firm_transaction").doc();
+      Map<String, dynamic> tdsTransaction = FirmtransactionModel(
+              transactionType: "CREDIT",
+              khataId: "tds",
+              invoiceno: bill["invoiceno"],
+              amount: bill["tds"])
+          .convertTomap();
+      batch.set(tdsTransactionRef, tdsTransaction);
+      //tds transaction
       //final to comit batch
       await batch.commit();
     } on FirebaseException catch (e) {
-      print("${e}jjjjj");
+      print("${e}error in adding bill on server");
       throw Exception(e.toString());
     } catch (e) {
-      print("${e}jjjjj");
+      print("${e}error in adding bill on server");
       throw Exception(e.toString());
     }
   }

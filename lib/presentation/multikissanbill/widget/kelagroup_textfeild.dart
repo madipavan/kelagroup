@@ -28,7 +28,7 @@ class KelagroupTextfeild extends StatelessWidget {
       onSelected: (dynamic val) {
         typecontroller.text = val["name"];
         Provider.of<MultiKissanPro>(context, listen: false).multikissan[index]
-            ["user_id"] = val["kelagroup_id"];
+            ["userId"] = val["userId"];
       },
       suggestionsCallback: (search) async {
         return await _getdata(search, "kelagroup");
@@ -42,7 +42,7 @@ class KelagroupTextfeild extends StatelessWidget {
           random.nextInt(1),
         );
         return ListTile(
-          trailing: Text(suggestion["kelagroup_id"].toString(),
+          trailing: Text(suggestion["userId"].toString(),
               style: const TextStyle(
                   fontFamily: "sans", fontWeight: FontWeight.bold)),
           subtitle: Text(suggestion["city"],
@@ -70,8 +70,10 @@ class KelagroupTextfeild extends StatelessWidget {
 
 Future _getdata(search, role) async {
   try {
-    QuerySnapshot<Map<String, dynamic>> data =
-        await FirebaseFirestore.instance.collection("$role").get();
+    QuerySnapshot<Map<String, dynamic>> data = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("role", isEqualTo: role)
+        .get();
 
     List<Map<String, dynamic>> foundList = data.docs
         .where((element) => element["name"]

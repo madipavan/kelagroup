@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kelawin/Models/user_model.dart';
+import 'package:kelawin/presentation/user_operations/pages/create_user.dart';
+import 'package:kelawin/utils/apputils.dart';
+
+import '../../../viewmodel/usersCrudOperations/users_crud_operations.dart';
 
 class ReadUsers extends StatefulWidget {
   const ReadUsers({super.key});
@@ -13,6 +17,8 @@ class _ReadUsersState extends State<ReadUsers> {
   bool _isLoading = true;
   late List<UserModel> allUsers;
   late List<UserModel> foundList;
+  List<UserModel> tempFoundList = [];
+  String _searchCatgory = "UserId";
   Map? selectedFilter;
   List<Map<String, dynamic>> filters = [
     {
@@ -24,12 +30,12 @@ class _ReadUsersState extends State<ReadUsers> {
   ];
   @override
   void initState() {
-    _getBills();
+    _getUsers();
     super.initState();
   }
 
-  Future _getBills() async {
-    allUsers = [];
+  Future _getUsers() async {
+    allUsers = await UsersCrudOperations().getAllUsersFromServer(context);
 
     _isLoading = false;
     if (mounted) {
@@ -79,6 +85,31 @@ class _ReadUsersState extends State<ReadUsers> {
                                       fontSize: 25,
                                       fontWeight: FontWeight.bold)),
                               const Spacer(),
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 30, vertical: 18),
+                                      backgroundColor: const Color(0xff0073dd),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5))),
+                                  onPressed: () async {
+                                    showDialog(
+                                        barrierDismissible: false,
+                                        context: context,
+                                        builder: (context) {
+                                          return const CreateUser(
+                                            toUpdate: false,
+                                          );
+                                        });
+                                  },
+                                  child: const Text(
+                                    "Create User",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                              const SizedBox(
+                                width: 20,
+                              ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 25, vertical: 8),
@@ -173,16 +204,80 @@ class _ReadUsersState extends State<ReadUsers> {
                                       shape: RoundedRectangleBorder(
                                           borderRadius:
                                               BorderRadius.circular(5))),
-                                  onPressed: () async {},
+                                  onPressed: () async {
+                                    foundList = allUsers;
+                                    tempFoundList = foundList;
+                                    if (selectedFilter != null) {
+                                      foundList = await _sortingAccordingRole(
+                                          foundList, selectedFilter!["value"]);
+                                    }
+                                    setState(() {});
+                                  },
                                   child: const Text(
                                     "Get Users",
                                     style: TextStyle(color: Colors.white),
                                   )),
                               const Spacer(),
+                              Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                        color: Colors.grey, width: 1),
+                                    borderRadius: BorderRadius.circular(5)),
+                                width: 80,
+                                child: DropdownButton(
+                                  padding: const EdgeInsets.only(left: 5),
+                                  borderRadius: BorderRadius.circular(5),
+                                  underline: const Text(""),
+                                  isExpanded: true,
+                                  dropdownColor: Colors.white,
+                                  style: const TextStyle(
+                                      fontFamily: "sans",
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87),
+                                  value: _searchCatgory,
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _searchCatgory = newValue!;
+                                    });
+                                  },
+                                  items: <String>[
+                                    'UserId',
+                                    'Name',
+                                    'City',
+                                    'State',
+                                  ].map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                              ),
                               Expanded(
                                   flex: 1,
                                   child: TextFormField(
-                                    onChanged: (value) async {},
+                                    onChanged: (value) async {
+                                      value = value.trim();
+                                      if (selectedFilter == null) {
+                                        //filtered list when getReprt button is clicked
+                                        foundList = allUsers;
+
+                                        foundList = await _searching(
+                                            foundList, value, _searchCatgory);
+                                      } else {
+                                        //filtered list when getReprt button is clicked
+                                        foundList = tempFoundList;
+
+                                        foundList = await _searching(
+                                            foundList, value, _searchCatgory);
+                                      }
+
+                                      setState(() {});
+                                    },
                                     cursorColor: Colors.grey,
                                     decoration: InputDecoration(
                                         prefixIcon: const Icon(Icons.search),
@@ -328,6 +423,16 @@ class _ReadUsersState extends State<ReadUsers> {
                                 Padding(
                                   padding: EdgeInsets.all(12),
                                   child: Text(
+                                    'Edit',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontFamily: "sans",
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.all(12),
+                                  child: Text(
                                     'Action',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -357,7 +462,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name,
+                                      foundList[i].userId.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -377,7 +482,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name,
+                                      foundList[i].address,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -387,7 +492,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name,
+                                      foundList[i].city,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -397,7 +502,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name.toString(),
+                                      foundList[i].state.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -407,7 +512,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name.toString(),
+                                      foundList[i].phone.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -417,7 +522,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name.toString(),
+                                      foundList[i].email.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -427,7 +532,9 @@ class _ReadUsersState extends State<ReadUsers> {
                                   Padding(
                                     padding: const EdgeInsets.all(8),
                                     child: Text(
-                                      foundList[i].name.toString(),
+                                      foundList[i].role == "kissan"
+                                          ? "NA"
+                                          : foundList[i].company.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                           fontFamily: "sans",
@@ -435,15 +542,46 @@ class _ReadUsersState extends State<ReadUsers> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Text(
-                                      foundList[i].name.toString(),
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                          fontFamily: "sans",
-                                          fontWeight: FontWeight.w600),
-                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 0, vertical: 0),
+                                            backgroundColor:
+                                                Colors.blue.shade900,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5))),
+                                        onPressed: () async {
+                                          showDialog(
+                                              barrierDismissible: false,
+                                              context: context,
+                                              builder: (context) {
+                                                return CreateUser(
+                                                  toUpdate: true,
+                                                  user: foundList[i],
+                                                );
+                                              });
+                                        },
+                                        child: const Text(
+                                          "EDIT",
+                                          style: TextStyle(color: Colors.white),
+                                        )),
                                   ),
+                                  Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: IconButton(
+                                          onPressed: () async {
+                                            await Apputils().showConfirmBox(
+                                                context,
+                                                'Are you sure you want to delete this user? deleting user will also delete khata and transactions of user!',
+                                                () async {
+                                              await UsersCrudOperations()
+                                                  .deleteUserFromServer(
+                                                      context, foundList[i]);
+                                            });
+                                          },
+                                          icon: const Icon(Icons.delete))),
                                 ])
                         ],
                       ),
@@ -454,4 +592,42 @@ class _ReadUsersState extends State<ReadUsers> {
             ),
     );
   }
+}
+
+Future<List<UserModel>> _sortingAccordingRole(
+    List<UserModel> foundList, String role) async {
+  foundList = foundList
+      .where((element) => element.role.toString().toLowerCase().contains(role))
+      .toList();
+  return foundList;
+}
+
+Future<List<UserModel>> _searching(
+    List<UserModel> foundList, String value, String searchCatgory) async {
+  if (searchCatgory == "UserId") {
+    foundList = foundList
+        .where((element) =>
+            element.userId.toString().toLowerCase().contains(value))
+        .toList();
+  }
+  if (searchCatgory == "Name") {
+    foundList = foundList
+        .where(
+            (element) => element.name.toString().toLowerCase().contains(value))
+        .toList();
+  }
+  if (searchCatgory == "City") {
+    foundList = foundList
+        .where(
+            (element) => element.city.toString().toLowerCase().contains(value))
+        .toList();
+  }
+  if (searchCatgory == "State") {
+    foundList = foundList
+        .where(
+            (element) => element.state.toString().toLowerCase().contains(value))
+        .toList();
+  }
+
+  return foundList;
 }

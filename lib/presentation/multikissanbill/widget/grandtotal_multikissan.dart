@@ -494,6 +494,78 @@ class _GrandtotalMultikissanState extends State<GrandtotalMultikissan> {
                       ),
                     ],
                   ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        height: Height * 0.04,
+                        width: Width * 0.1,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "TDS",
+                              style: TextStyle(
+                                  fontFamily: "sans",
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xff2278fd),
+                                  fontSize: Width * 0.01),
+                            ),
+                            SizedBox(
+                              width: Width * 0.01,
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 229, 241, 248),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              height: Height * 0.035,
+                              width: Width * 0.03,
+                              child: DropdownButton(
+                                padding: EdgeInsets.all(Width * 0.0025),
+                                iconSize: Width * 0.01,
+                                underline: const Text(""),
+                                isExpanded: true,
+                                dropdownColor: Colors.white,
+                                style: TextStyle(
+                                    fontFamily: "sans",
+                                    fontSize: Width * 0.01,
+                                    color: Colors.black87),
+                                value: value.tdspercent,
+                                onChanged: (int? newValue) {
+                                  setState(() {
+                                    value.tdspercent = newValue!;
+                                  });
+                                },
+                                items: <int>[
+                                  0,
+                                  1,
+                                  2,
+                                  3,
+                                  4,
+                                  5,
+                                ].map<DropdownMenuItem<int>>((int value) {
+                                  return DropdownMenuItem<int>(
+                                    value: value,
+                                    child: Text(value.toString()),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        value.tds.toString(),
+                        style: TextStyle(
+                            fontFamily: "sans",
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                            fontSize: Width * 0.01),
+                      ),
+                    ],
+                  ),
                   SizedBox(
                     height: Height * 0.04,
                   ),

@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:kelawin/Models/billmodel.dart';
+import 'package:kelawin/Models/khata_model.dart';
 import 'package:kelawin/Models/multikissan_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -11,7 +12,7 @@ pw.Widget buildPrintableDataInvoice(
     PdfColor textcolor,
     Font bold,
     BillModel billdata,
-    List<dynamic> khatalist,
+    KhataModel khata,
     String amtinwords,
     String vyapariphone) {
   return pw.Padding(
@@ -390,8 +391,7 @@ pw.Widget buildPrintableDataInvoice(
                                     fontSize: 12),
                               ),
                               pw.Text(
-                                NumberFormat('#,##0.00')
-                                    .format(khatalist[0]["Recieved"]),
+                                NumberFormat('#,##0.00').format(khata.received),
                                 style: pw.TextStyle(
                                     font: customFont,
                                     fontWeight: pw.FontWeight.bold,
@@ -411,8 +411,7 @@ pw.Widget buildPrintableDataInvoice(
                                     fontSize: 12),
                               ),
                               pw.Text(
-                                NumberFormat('#,##0.00')
-                                    .format(khatalist[0]["Due"]),
+                                NumberFormat('#,##0.00').format(khata.due),
                                 style: pw.TextStyle(
                                     font: customFont,
                                     fontWeight: pw.FontWeight.bold,

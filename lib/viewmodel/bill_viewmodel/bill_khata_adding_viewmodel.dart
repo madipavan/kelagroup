@@ -4,21 +4,10 @@ import 'package:kelawin/utils/apputils.dart';
 
 class BillandKhataAddingViewmodel {
   Future billAndKhataAmountupdate(
-      Map<String, dynamic> bill,
-      int vyapariId,
-      double vyapariAmount,
-      int kissanId,
-      double kissanAmount,
-      BuildContext context) async {
+      Map<String, dynamic> bill, BuildContext context) async {
     try {
       Apputils().loader(context);
-      await BillandKhataAmountAdding().addBillandVyapariKhataAmountupdate(
-        bill,
-        vyapariId,
-        vyapariAmount,
-        kissanId,
-        kissanAmount,
-      );
+      await BillandKhataAmountAdding().addBillandVyapariKhataAmountupdate(bill);
       Apputils().transactionSuccess(context, 4, "Transaction Successful");
     } catch (e) {
       Apputils().transactionUnsuccess(

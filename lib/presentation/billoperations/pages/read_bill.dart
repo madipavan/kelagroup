@@ -372,13 +372,13 @@ class _ReadBillState extends State<ReadBill> {
                                   flex: 1,
                                   child: TextFormField(
                                     onChanged: (value) async {
-                                      if (value.contains(" ")) {
-                                        //filtered list when getReprt button is clicked
-                                        foundList = tempfoundList;
-                                      } else {
-                                        foundList = await _searching(value,
-                                            _searcCatgory, tempfoundList);
-                                      }
+                                      value = value.trim();
+
+                                      //filtered list when getReprt button is clicked
+                                      foundList = tempfoundList;
+
+                                      foundList = await _searching(
+                                          value, _searcCatgory, tempfoundList);
 
                                       setState(() {});
                                     },
@@ -764,7 +764,7 @@ Future<List<BillModel>> _sortingOfBills(List<BillModel> allBills) async {
   return allBills;
 }
 
-Future<dynamic> _searching(
+Future<List<BillModel>> _searching(
     val, String searchcatogary, List<BillModel> foundList) async {
   if (val.toString().isEmpty) {
     return foundList;

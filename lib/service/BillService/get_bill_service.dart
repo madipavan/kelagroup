@@ -9,10 +9,10 @@ class GetBillService {
     try {
       QuerySnapshot<Map<String, dynamic>> bill = await firebase
           .collection("Bills")
-          .where("bill_no", isEqualTo: billno)
+          .where("invoiceno", isEqualTo: billno)
           .get();
 
-      if (bill.docs[0]["ismultikissan"]) {
+      if (bill.docs[0]["isMultikissan"]) {
         QuerySnapshot<Map<String, dynamic>> subCollectionBill = await firebase
             .collection("Bills")
             .doc(bill.docs[0].id)
@@ -40,11 +40,11 @@ class GetBillService {
     try {
       QuerySnapshot<Map<String, dynamic>> bills = await firebase
           .collection("Bills")
-          .orderBy("bill_no", descending: true)
+          .orderBy("invoiceno", descending: true)
           .get();
 
       for (int i = 0; i < bills.docs.length; i++) {
-        if (bills.docs[i]["ismultikissan"]) {
+        if (bills.docs[i]["isMultikissan"]) {
           QuerySnapshot<Map<String, dynamic>> subCollectionBill = await firebase
               .collection("Bills")
               .doc(bills.docs[i].id)

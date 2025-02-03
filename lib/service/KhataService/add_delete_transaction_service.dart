@@ -9,35 +9,46 @@ class AddDeleteTransactionService {
       WriteBatch batch = firebase.batch();
       //getting khata
       QuerySnapshot khataDoc = await firebase
-          .collection("${role}_khata")
-          .where("${role}_id", isEqualTo: int.parse(transaction["user_id"]))
+          .collection("Khata")
+          .where("userId", isEqualTo: transaction["userId"])
           .get();
       //updating values in khata
       double total = 0;
       double received = 0;
       double due = 0;
-      if (transaction["transaction_type"] == "DEBIT") {
-        total = khataDoc.docs[0]["Total"] + transaction["amount"];
-        due = total - khataDoc.docs[0]["Recieved"];
-        received = khataDoc.docs[0]["Recieved"];
-      } else if (transaction["transaction_type"] == "CREDIT") {
-        total = khataDoc.docs[0]["Total"];
-        received = khataDoc.docs[0]["Recieved"] + transaction["amount"];
-        due = total - received;
+      if (transaction["transactionType"] == "DEBIT") {
+        if (role == "vyapari") {
+          total = khataDoc.docs[0]["total"] + transaction["amount"];
+          due = total - khataDoc.docs[0]["received"];
+          received = khataDoc.docs[0]["received"];
+        } else {
+          total = khataDoc.docs[0]["total"];
+          received = khataDoc.docs[0]["received"] + transaction["amount"];
+          due = total - received;
+        }
+      } else if (transaction["transactionType"] == "CREDIT") {
+        if (role == "vyapari") {
+          total = khataDoc.docs[0]["total"];
+          received = khataDoc.docs[0]["received"] + transaction["amount"];
+          due = total - received;
+        } else {
+          total = khataDoc.docs[0]["total"] + transaction["amount"];
+          due = total - khataDoc.docs[0]["received"];
+          received = khataDoc.docs[0]["received"];
+        }
       }
-      final khataRef =
-          firebase.collection("${role}_khata").doc(khataDoc.docs[0].id);
+      final khataRef = firebase.collection("Khata").doc(khataDoc.docs[0].id);
       batch
-          .update(khataRef, {"Total": total, "Due": due, "Recieved": received});
+          .update(khataRef, {"total": total, "due": due, "received": received});
       //updating values in khata
       //adding transaction
       QuerySnapshot transactionData = await firebase
           .collection("${role}_transaction")
-          .orderBy("transaction_id", descending: true)
+          .orderBy("transactionId", descending: true)
           .get();
-      int newtransactionId = transactionData.docs[0]["transaction_id"] + 1;
-      transaction["transaction_id"] = newtransactionId;
-      transaction["khata_id"] = khataDoc.docs[0]["khata_id"].toString();
+      int newtransactionId = transactionData.docs[0]["transactionId"] + 1;
+      transaction["transactionId"] = newtransactionId;
+      transaction["khataId"] = khataDoc.docs[0]["khataId"].toString();
 
       final transactionRef = firebase.collection("${role}_transaction").doc();
       batch.set(transactionRef, transaction);
@@ -58,31 +69,42 @@ class AddDeleteTransactionService {
 
       //getting khata
       QuerySnapshot khataDoc = await firebase
-          .collection("${role}_khata")
-          .where("khata_id", isEqualTo: int.parse(transaction.khataId))
+          .collection("Khata")
+          .where("khataId", isEqualTo: transaction.khataId)
           .get();
       //updating values in khata
       double total = 0;
       double received = 0;
       double due = 0;
       if (transaction.transactionType == "DEBIT") {
-        total = khataDoc.docs[0]["Total"] - transaction.amount;
-        due = total - khataDoc.docs[0]["Recieved"];
-        received = khataDoc.docs[0]["Recieved"];
+        if (role == "vyapari") {
+          total = khataDoc.docs[0]["total"] - transaction.amount;
+          due = total - khataDoc.docs[0]["received"];
+          received = khataDoc.docs[0]["received"];
+        } else {
+          total = khataDoc.docs[0]["total"];
+          received = khataDoc.docs[0]["received"] - transaction.amount;
+          due = total - received;
+        }
       } else if (transaction.transactionType == "CREDIT") {
-        total = khataDoc.docs[0]["Total"] - transaction.amount;
-        received = khataDoc.docs[0]["Recieved"] - transaction.amount;
-        due = total - received;
+        if (role == "vyapari") {
+          total = khataDoc.docs[0]["total"];
+          received = khataDoc.docs[0]["received"] - transaction.amount;
+          due = total - received;
+        } else {
+          total = khataDoc.docs[0]["total"] - transaction.amount;
+          due = total - khataDoc.docs[0]["received"];
+          received = khataDoc.docs[0]["received"];
+        }
       }
-      final khataRef =
-          firebase.collection("${role}_khata").doc(khataDoc.docs[0].id);
+      final khataRef = firebase.collection("Khata").doc(khataDoc.docs[0].id);
       batch
-          .update(khataRef, {"Total": total, "Due": due, "Recieved": received});
+          .update(khataRef, {"total": total, "due": due, "received": received});
       //updating values in khata
       //deleting transaction
       QuerySnapshot transactionId = await firebase
           .collection("${role}_transaction")
-          .where("transaction_id", isEqualTo: transaction.transactionId)
+          .where("transactionId", isEqualTo: transaction.transactionId)
           .get();
       final transactionRef = firebase
           .collection("${role}_transaction")

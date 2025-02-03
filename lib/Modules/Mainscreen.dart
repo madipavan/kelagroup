@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kelawin/Modules/Addaccount.dart';
 import 'package:kelawin/Modules/Homepage.dart';
 import 'package:kelawin/presentation/mandi%20report/pages/mandi_report.dart';
 import 'package:kelawin/presentation/user_operations/pages/read_users.dart';
@@ -56,7 +55,7 @@ class _MainscreenState extends State<Mainscreen> {
             height: Height,
             width: Width * 0.05,
             child: NavigationRail(
-              indicatorColor: Colors.lightBlue,
+              indicatorColor: const Color(0xff0073dd),
               backgroundColor: Colors.black87,
               labelType: NavigationRailLabelType.all,
               selectedIndex: _selectedindex,
@@ -81,16 +80,6 @@ class _MainscreenState extends State<Mainscreen> {
                           color: Colors.white,
                           fontSize: Width * 0.007),
                     )),
-                NavigationRailDestination(
-                    icon: const Icon(
-                      Icons.person_add,
-                      color: Colors.white,
-                    ),
-                    label: Text("Add Account",
-                        style: TextStyle(
-                            fontFamily: "sans",
-                            color: Colors.white,
-                            fontSize: Width * 0.005))),
                 NavigationRailDestination(
                     icon: const Icon(
                       Icons.addchart_rounded,
@@ -145,7 +134,7 @@ class _MainscreenState extends State<Mainscreen> {
             scrollDirection: Axis.vertical,
             children: const [
               Homepage(),
-              Addaccount(),
+
               ReadBill(),
               ReadUsers(),
               // Editaccount(),

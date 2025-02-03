@@ -9,8 +9,9 @@ import 'viewmodel/calcWidgetVisibilty/grandtotalvisible_provider.dart';
 import 'viewmodel/multikissanbillcalc/multi_grandtotal.dart';
 
 void main() async {
-  //when adding real user account st id with 10,000 and also check searching of userid in readbill
-  //when creating first bill keep in mind to make changes in billmodel (invoiceno to bilno)
+  //load fix commission and hammali when load bill
+  //add tds in bill
+  //while deleting bill check if user exist or not
   await const MyApp()._datacon();
 
   runApp(const MyApp());

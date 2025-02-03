@@ -1,14 +1,15 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MultiKissanPro extends ChangeNotifier {
   List<Map> multikissan = [];
 
   static List<Map> multikissanCalclist = [];
 
-  void addintolist() async {
-    multikissan.add(await kissan());
+  void addintolist(context) async {
+    multikissan.add(await kissan(context));
     multikissanCalclist = multikissan;
     notifyListeners();
   }
@@ -19,7 +20,7 @@ class MultiKissanPro extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Map> kissan() async {
+  Future<Map> kissan(context) async {
     TextEditingController name = TextEditingController();
     TextEditingController pati = TextEditingController();
     TextEditingController danda = TextEditingController();
@@ -31,10 +32,14 @@ class MultiKissanPro extends ChangeNotifier {
     pati.text = "7.5";
     danda.text = "6.0";
     wastage.text = "6.0";
+    bhav.text = Provider.of<MultiKissanPro>(context, listen: false)
+        .multikissan[0]["bhav"]
+        .text;
 
     int kissanid = 0;
 
-    String unit = "Loose";
+    String unit = Provider.of<MultiKissanPro>(context, listen: false)
+        .multikissan[0]["unit"];
     String patiunit = "Percent";
     String dandaunit = "Percent";
     String wastageunit = "Percent";
@@ -49,7 +54,7 @@ class MultiKissanPro extends ChangeNotifier {
 
     return {
       "name": name,
-      "user_id": kissanid,
+      "userId": kissanid,
       "unit": unit,
       "pati": pati,
       "patiunit": patiunit,
@@ -107,8 +112,9 @@ class MultiKissanPro extends ChangeNotifier {
         double.parse(multikissan[index]["bhav"].text.toString()));
     //to convert it in 2 decimal roudoff value
     multikissan[index]["amount"] = double.parse(
-        ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
-            .toStringAsFixed(2));
+            ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
+                .toStringAsFixed(2))
+        .round();
   }
 
   caratecalc(index) {
@@ -149,8 +155,9 @@ class MultiKissanPro extends ChangeNotifier {
         double.parse(multikissan[index]["bhav"].text.toString()));
     //to convert it in 2 decimal roudoff value
     multikissan[index]["amount"] = double.parse(
-        ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
-            .toStringAsFixed(2));
+            ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
+                .toStringAsFixed(2))
+        .round();
   }
 
   boxcalc(index) {
@@ -207,8 +214,9 @@ class MultiKissanPro extends ChangeNotifier {
         double.parse(multikissan[index]["bhav"].text.toString()));
     //to convert it in 2 decimal roudoff value
     multikissan[index]["amount"] = double.parse(
-        ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
-            .toStringAsFixed(2));
+            ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
+                .toStringAsFixed(2))
+        .round();
   }
 
   void kelagroupcalc(index, String hammali, String commission, String mtax) {

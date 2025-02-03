@@ -143,7 +143,9 @@ class WtdiffTable extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8),
                       child: Text(
-                        value.multiWtDiff.toString(),
+                        (value.resettleMentKissanList[i].netwt -
+                                MultiKissanPro.multikissanCalclist[i]["netwt"])
+                            .toStringAsFixed(2),
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),

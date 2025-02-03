@@ -163,7 +163,13 @@ class Apputils {
                       i++;
                     }
                   },
-                  child: const Text('OK'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ],
             ),
@@ -340,5 +346,65 @@ class Apputils {
     } else {
       return DateTime.now();
     }
+  }
+
+  //confirmbox
+  Future showConfirmBox(
+      BuildContext context, String content, Function()? onPressed) async {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            title: const Center(
+              child: Icon(
+                Icons.info_rounded,
+                color: Colors.green,
+                size: 50,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const Text(
+                  'Confirm Deletion',
+                  style: TextStyle(
+                    fontFamily: "sans",
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  content,
+                  style: const TextStyle(fontFamily: "sans"),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(fontFamily: "sans", color: Colors.black),
+                ),
+              ),
+              TextButton(
+                onPressed: onPressed,
+                child: const Text(
+                  'Confirm',
+                  style: TextStyle(fontFamily: "sans", color: Colors.red),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }

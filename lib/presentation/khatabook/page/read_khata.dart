@@ -28,7 +28,8 @@ class ReadKhata extends StatefulWidget {
 
 class _ReadKhataState extends State<ReadKhata> {
   Key _typeAheadKey = UniqueKey();
-  KhataModel khata = KhataModel(khataId: "", received: 0, total: 0, due: 0);
+  KhataModel khata =
+      KhataModel(khataId: 0, received: 0, total: 0, due: 0, userId: 0);
   TextEditingController selectedvyapari = TextEditingController();
   List<Map> narrations = [];
   UserModel user = UserModel(
@@ -42,6 +43,13 @@ class _ReadKhataState extends State<ReadKhata> {
       city: '',
       company: '',
       email: '',
+      aadhar: "",
+      branch: "",
+      commissionPercent: 0,
+      hammaliPercent: 0,
+      ledgerGroupId: 0,
+      note: '',
+      panCard: '',
       userId: 0);
   DateTime fromDate = DateTime.now();
   DateTime toDate = DateTime.now();
@@ -349,11 +357,11 @@ class _ReadKhataState extends State<ReadKhata> {
 
                               KhataModel? getkhata =
                                   await GetkhataAndTransactionViewmodel()
-                                      .getKhataFromServer(
-                                          val.userId, _selectedRole);
+                                      .getKhataFromServer(val.userId);
                               setState(() {
                                 //current user
                                 user = val;
+
                                 //current user
 
                                 khata = getkhata!;
@@ -614,10 +622,10 @@ class _ReadKhataState extends State<ReadKhata> {
                                       Padding(
                                         padding: const EdgeInsets.all(8),
                                         child: Text(
-                                          transactions[i].billno == 0
+                                          transactions[i].invoiceno == 0
                                               ? "NA"
                                               : transactions[i]
-                                                  .billno
+                                                  .invoiceno
                                                   .toString(),
                                           textAlign: TextAlign.center,
                                           style: const TextStyle(
@@ -689,10 +697,16 @@ class _ReadKhataState extends State<ReadKhata> {
                                         child: transactions[i].paymentMode != ""
                                             ? IconButton(
                                                 onPressed: () async {
-                                                  await _deletionOfTransaction(
+                                                  await Apputils().showConfirmBox(
                                                       context,
-                                                      transactions[i],
-                                                      user);
+                                                      'Are you sure you want to delete this transaction?',
+                                                      () async {
+                                                    await AddDeleteTransactionOnserver()
+                                                        .deleteTransactionOnServer(
+                                                            transactions[i],
+                                                            user.role,
+                                                            context);
+                                                  });
                                                 },
                                                 icon: const Icon(Icons.delete))
                                             : const Text(
@@ -721,7 +735,7 @@ Widget _foatingButton(
   List<int> billNumbers = [0];
   for (TransactionModel transaction in transactions) {
     if (transaction.paymentMode == "") {
-      billNumbers.add(transaction.billno);
+      billNumbers.add(transaction.invoiceno);
     }
   }
 
@@ -735,7 +749,7 @@ Widget _foatingButton(
             builder: (context) {
               return MakePayment(
                 billNumbers: billNumbers,
-                user: user,
+                selectedUser: user,
               );
             });
       },
@@ -759,8 +773,10 @@ Widget _foatingButton(
 
 Future<List<UserModel>> _getdata(search, role) async {
   try {
-    QuerySnapshot<Map<String, dynamic>> data =
-        await FirebaseFirestore.instance.collection("$role").get();
+    QuerySnapshot<Map<String, dynamic>> data = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("role", isEqualTo: role)
+        .get();
 
     List<UserModel> users = [];
 
@@ -795,7 +811,7 @@ Future<List<Map>> _getNarrations(
       });
     } else {
       BillModel? bill =
-          await GetBillFromServer().getbill(transactionsList[j].billno);
+          await GetBillFromServer().getbill(transactionsList[j].invoiceno);
       if (bill!.isMultikissan) {
         double totalLungar = 0;
         for (MultikissanModel element in bill.multiKissanList!) {
@@ -820,68 +836,6 @@ Future<List<Map>> _getNarrations(
   }
 
   return narrations;
-}
-
-Future _deletionOfTransaction(
-    BuildContext context, TransactionModel transaction, UserModel user) async {
-  showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          title: const Center(
-            child: Icon(
-              Icons.info_rounded,
-              color: Colors.green,
-              size: 50,
-            ),
-          ),
-          content: const Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                'Confirm Deletion',
-                style: TextStyle(
-                  fontFamily: "sans",
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Are you sure you want to delete this transaction?',
-                style: TextStyle(fontFamily: "sans"),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(fontFamily: "sans", color: Colors.black),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                AddDeleteTransactionOnserver()
-                    .deleteTransactionOnServer(transaction, user.role, context);
-              },
-              child: const Text(
-                'Confirm',
-                style: TextStyle(fontFamily: "sans", color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      });
 }
 
 Future<List<TransactionModel>> _getDateSortedTransactions(

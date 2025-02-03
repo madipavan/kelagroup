@@ -3,10 +3,10 @@ import 'package:kelawin/Models/transaction_model.dart';
 import 'package:kelawin/service/KhataService/get_khata_transaction_service.dart';
 
 class GetkhataAndTransactionViewmodel {
-  Future<KhataModel?> getKhataFromServer(int userId, String role) async {
+  Future<KhataModel?> getKhataFromServer(int userId) async {
     try {
       KhataModel? khata =
-          await GetKhataAndTransactionService().getkhata(userId, role);
+          await GetKhataAndTransactionService().getkhata(userId);
 
       return khata;
     } catch (e) {

@@ -4,53 +4,56 @@ class TransactionModel {
   int transactionId;
   String transactionType;
   String date;
-  String khataId;
-  String userId;
+  int khataId;
+  int userId;
   String? paymentMode;
   String? receiverName;
   double amount;
-  int billno;
+  int invoiceno;
+  Timestamp? time;
   TransactionModel(
       {required this.transactionId,
       required this.transactionType,
       required this.date,
       required this.khataId,
       required this.amount,
-      required this.billno,
+      required this.invoiceno,
+      this.time,
       this.paymentMode,
       this.receiverName,
       required this.userId});
 
   Map<String, dynamic> convertTomap() {
-    Map<String, dynamic> transaction = {
-      "transaction_id": transactionId,
+    return {
+      "transactionId": transactionId,
       "date": date,
-      "transaction_type": transactionType,
+      "transactionType": transactionType,
       "amount": amount,
-      "billno": billno,
-      "khata_id": khataId,
-      "user_id": userId,
+      "invoiceno": invoiceno,
+      "khataId": khataId,
+      "userId": userId,
       "paymentMode": paymentMode ?? "",
       "receiverName": receiverName ?? "",
+      "time": time ?? Timestamp.now(),
     };
-    return transaction;
   }
 
   factory TransactionModel.fromJson(
       QueryDocumentSnapshot<Map<String, dynamic>> transaction) {
     return TransactionModel(
-        transactionId: transaction["transaction_id"],
-        transactionType: transaction["transaction_type"],
+        transactionId: transaction["transactionId"],
+        transactionType: transaction["transactionType"],
         date: transaction["date"],
-        khataId: transaction["khata_id"],
+        khataId: transaction["khataId"],
         amount: transaction["amount"],
-        billno: transaction["billno"],
+        invoiceno: transaction["invoiceno"],
         paymentMode: transaction.data().containsKey("paymentMode")
             ? transaction["paymentMode"]
             : "",
         receiverName: transaction.data().containsKey("receiverName")
             ? transaction["receiverName"]
             : "",
-        userId: transaction["user_id"]);
+        time: transaction["time"],
+        userId: transaction["userId"]);
   }
 }

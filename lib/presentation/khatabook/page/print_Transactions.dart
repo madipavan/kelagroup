@@ -198,7 +198,9 @@ pw.Widget _trasactionTable(List<TransactionModel> transactionsList,
           pw.Padding(
             padding: const pw.EdgeInsets.only(top: 5, bottom: 5, left: 5),
             child: pw.Text(
-              transaction.billno == 0 ? "NA" : transaction.billno.toString(),
+              transaction.invoiceno == 0
+                  ? "NA"
+                  : transaction.invoiceno.toString(),
               textAlign: pw.TextAlign.start,
             ),
           ),

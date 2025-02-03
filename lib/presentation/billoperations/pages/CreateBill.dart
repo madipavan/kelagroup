@@ -7,6 +7,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:intl/intl.dart';
+import 'package:kelawin/Models/billmodel.dart';
 import 'package:kelawin/presentation/multikissanbill/page/Multi_kissan.dart';
 import 'package:kelawin/presentation/multikissanbill/provider/multi_kissan_pro.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/grandtotal_multikissan.dart';
@@ -70,7 +71,7 @@ String parchavillage = "";
 double bhav = 0;
 double gross = 0;
 double tare = 0;
-double lungar = 0;
+int lungar = 0;
 
 double nettweight = 0;
 double kissanamt = 0;
@@ -80,6 +81,7 @@ double mtax = 0;
 double subtotal = 0;
 int ot = 40;
 double tcs = 0;
+double tds = 0;
 double grandtotal = 0;
 
 String note = "";
@@ -88,6 +90,7 @@ int hammalipercent = 20;
 int commissionpercent = 15;
 int mtaxpercent = 1;
 int tcspercent = 0;
+int tdspercent = 0;
 
 class CreateBill extends StatefulWidget {
   const CreateBill({super.key});
@@ -336,7 +339,7 @@ class _CreateBillState extends State<CreateBill> {
                                           }, onSelected: (dynamic val) {
                                             setState(() {
                                               selectedkissan.text = val["name"];
-                                              kissanid = val["kissan_id"];
+                                              kissanid = val["userId"];
                                               kissanaddress = val["address"];
                                               kissancity = val["city"];
                                               kissanstate = val["state"];
@@ -355,7 +358,7 @@ class _CreateBillState extends State<CreateBill> {
                                               // Add null check to ensure itemData is not null
                                               return ListTile(
                                                 trailing: Text(
-                                                    suggestion["kissan_id"]
+                                                    suggestion["userId"]
                                                         .toString(),
                                                     style: const TextStyle(
                                                         fontFamily: "sans",
@@ -763,7 +766,7 @@ class _CreateBillState extends State<CreateBill> {
                                               setState(() {
                                                 selectedvyapari.text =
                                                     val["name"];
-                                                vyapariid = val["vyapari_id"];
+                                                vyapariid = val["userId"];
                                                 vyaparicompany = val["company"];
                                                 vyapariaddress = val["address"];
                                                 vyaparicity = val["city"];
@@ -784,7 +787,7 @@ class _CreateBillState extends State<CreateBill> {
                                                 // Add null check to ensure itemData is not null
                                                 return ListTile(
                                                   trailing: Text(
-                                                      suggestion["vyapari_id"]
+                                                      suggestion["userId"]
                                                           .toString(),
                                                       style: const TextStyle(
                                                           fontFamily: "sans",
@@ -1367,8 +1370,8 @@ class _CreateBillState extends State<CreateBill> {
                                   Row(
                                     children: [
                                       Container(
-                                        margin: EdgeInsets.only(
-                                            left: Width * 0.025),
+                                        margin:
+                                            EdgeInsets.only(left: Width * 0.02),
                                         child: Text(
                                           "Parcha details",
                                           style: TextStyle(
@@ -1462,7 +1465,8 @@ class _CreateBillState extends State<CreateBill> {
                                                                   const CircleBorder()),
                                                       onPressed: () {
                                                         setState(() {
-                                                          value.addintolist();
+                                                          value.addintolist(
+                                                              context);
                                                           value.scrollToEnd(
                                                               _scrollController);
                                                           kissanadd_index++;
@@ -1726,7 +1730,7 @@ class _CreateBillState extends State<CreateBill> {
                                                                           setState(
                                                                               () {
                                                                             lungar =
-                                                                                double.parse(val);
+                                                                                int.parse(val);
                                                                           });
                                                                         },
                                                                         cursorColor:
@@ -2856,7 +2860,7 @@ class _CreateBillState extends State<CreateBill> {
                                               MainAxisAlignment.spaceAround,
                                           children: [
                                             const SizedBox(
-                                              width: 750,
+                                              width: 650,
                                             ),
                                             Column(
                                               crossAxisAlignment:
@@ -3209,7 +3213,7 @@ class _CreateBillState extends State<CreateBill> {
                                                                     listen:
                                                                         false)
                                                                 .totalLungar)
-                                                        .toString();
+                                                        .toStringAsFixed(2);
                                                   });
                                                 },
                                                 child: const Text(
@@ -3865,6 +3869,101 @@ class _CreateBillState extends State<CreateBill> {
                                             ),
                                           ],
                                         ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            SizedBox(
+                                              height: Height * 0.04,
+                                              width: Width * 0.1,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    "TDS",
+                                                    style: TextStyle(
+                                                        fontFamily: "sans",
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: const Color(
+                                                            0xff2278fd),
+                                                        fontSize: Width * 0.01),
+                                                  ),
+                                                  SizedBox(
+                                                    width: Width * 0.01,
+                                                  ),
+                                                  Container(
+                                                    decoration: BoxDecoration(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              229,
+                                                              241,
+                                                              248),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              5),
+                                                    ),
+                                                    height: Height * 0.035,
+                                                    width: Width * 0.03,
+                                                    child: DropdownButton(
+                                                      padding: EdgeInsets.all(
+                                                          Width * 0.0025),
+                                                      iconSize: Width * 0.01,
+                                                      underline: const Text(""),
+                                                      isExpanded: true,
+                                                      dropdownColor:
+                                                          Colors.white,
+                                                      style: TextStyle(
+                                                          fontFamily: "sans",
+                                                          fontSize:
+                                                              Width * 0.01,
+                                                          color:
+                                                              Colors.black87),
+                                                      value: tdspercent,
+                                                      onChanged:
+                                                          (int? newValue) {
+                                                        setState(() {
+                                                          tdspercent =
+                                                              newValue!;
+                                                        });
+                                                      },
+                                                      items: <int>[
+                                                        0,
+                                                        1,
+                                                        2,
+                                                        3,
+                                                        4,
+                                                        5,
+                                                      ].map<
+                                                              DropdownMenuItem<
+                                                                  int>>(
+                                                          (int value) {
+                                                        return DropdownMenuItem<
+                                                            int>(
+                                                          value: value,
+                                                          child: Text(
+                                                              value.toString()),
+                                                        );
+                                                      }).toList(),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Text(
+                                              tds.toString(),
+                                              style: TextStyle(
+                                                  fontFamily: "sans",
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.black87,
+                                                  fontSize: Width * 0.01),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(
                                           height: Height * 0.04,
                                         ),
@@ -4253,8 +4352,10 @@ class _CreateBillState extends State<CreateBill> {
 
 Future _Getdata(search, role) async {
   try {
-    QuerySnapshot<Map<String, dynamic>> data =
-        await FirebaseFirestore.instance.collection("$role").get();
+    QuerySnapshot<Map<String, dynamic>> data = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("role", isEqualTo: role)
+        .get();
 
     List<Map<String, dynamic>> foundList = data.docs
         .where((element) => element["name"]
@@ -4275,10 +4376,10 @@ Future _Getdata(search, role) async {
 Future _getinvoiceno() async {
   var data = await FirebaseFirestore.instance
       .collection("Bills")
-      .orderBy("bill_no", descending: true)
+      .orderBy("invoiceno", descending: true)
       .get();
 
-  int currentbillno = data.docs[0]["bill_no"] + 1;
+  int currentbillno = data.docs[0]["invoiceno"] + 1;
   return currentbillno;
 }
 
@@ -4290,42 +4391,57 @@ Future _addbill(context) async {
   if (validations == true) {
     Apputils().loader(context);
     if (isDevicesConnected == true) {
-      Map<String, dynamic> bill = await addobject(
-          invoiceno,
-          billdate,
-          selectedkissan.text,
-          kissanid,
-          selectedvyapari.text,
-          vyapariid,
-          vyaparicompany,
-          rasController.text,
-          board,
-          motorno,
-          bhuktanpk,
-          parchavillage,
-          bhav,
-          dropdownValue,
-          patival,
-          dandaval,
-          wastageval,
-          gross,
-          tare,
-          lungar,
-          nettweight,
-          hammali,
-          commission,
-          mtax,
-          ot,
-          tcs,
-          grandtotal,
-          context,
-          note);
+      Map<String, dynamic> bill = BillModel(
+              invoiceno: invoiceno,
+              date: billdate,
+              selectedkissan: selectedkissan.text,
+              kissanid: kissanid,
+              selectedvyapari: selectedvyapari.text,
+              vyapariid: vyapariid,
+              vyaparicompany: vyaparicompany,
+              vyapariaddress: vyapariaddress,
+              ras: rasController.text,
+              bhav: bhav,
+              dandaunit: _dandaunit,
+              dandaval: dandaval,
+              dandawt: dandawt,
+              lungar: lungar,
+              parchavillage: parchavillage,
+              patiunit: _patiunit,
+              patival: patival,
+              patiwt: patiwt,
+              unit: dropdownValue,
+              wastageunit: _wastageunit,
+              wastageval: wastageval,
+              wastagewt: wastagewt,
+              board: board,
+              motorno: motorno,
+              bhuktanpk: bhuktanpk,
+              gross: gross,
+              tare: tare,
+              wtDiff: 0,
+              nettweight: nettweight,
+              kissanamt: kissanamt,
+              hammali: hammali,
+              hammalipercent: hammalipercent,
+              commission: commission,
+              commissionpercent: commissionpercent,
+              mtax: mtax,
+              mtaxpercent: mtaxpercent,
+              ot: ot,
+              tcs: tcs,
+              tds: tds,
+              subtotal: subtotal,
+              grandtotal: grandtotal,
+              adminId: 40000,
+              isMultikissan: false,
+              note: note)
+          .tomap();
 
       try {
-        BillandKhataAddingViewmodel().billAndKhataAmountupdate(
-            bill, vyapariid, grandtotal, kissanid, kissanamt, context);
+        BillandKhataAddingViewmodel().billAndKhataAmountupdate(bill, context);
       } catch (e) {
-        print("-------$e");
+        print("Error while calling add bill service$e");
       }
     } else if (isDevicesConnected == false) {
       Apputils().noInternetConnection(context);
@@ -4333,84 +4449,6 @@ Future _addbill(context) async {
   } else {
     Apputils().formisinComplete(context);
   }
-}
-
-Future<Map<String, dynamic>> addobject(
-    invoiceno,
-    date,
-    selectedkissan,
-    kissanid,
-    selectedvyapari,
-    vyapariid,
-    vyaparicompany,
-    ras,
-    board,
-    motorno,
-    bhuktanpk,
-    parchavillage,
-    bhav,
-    unit,
-    patival,
-    dandaval,
-    wastageval,
-    gross,
-    tare,
-    lungar,
-    nettweight,
-    hammali,
-    commission,
-    mtax,
-    ot,
-    tcs,
-    grandtotal,
-    context,
-    note) async {
-  return {
-    "bill_no": invoiceno,
-    "date": date,
-    "kissan_name": selectedkissan,
-    "kissan_id": kissanid,
-    "vyapari_name": selectedvyapari,
-    "vyapari_id": vyapariid,
-    "vyapari_company": vyaparicompany,
-    "vyapari_address": vyapariaddress,
-    "ras": ras,
-    "board": board,
-    "motorno": motorno,
-    "bhuktanpk": bhuktanpk,
-    "parchavillage": parchavillage,
-    "bhav": bhav,
-    "unit": unit,
-    "patival": patival,
-    "patiunit": _patiunit,
-    "patiwt": patiwt,
-    "dandaval": dandaval,
-    "dandaunit": _dandaunit,
-    "dandawt": dandawt,
-    "wastageval": wastageval,
-    "wastageunit": _wastageunit,
-    "wastagewt": wastagewt,
-    "gross": gross,
-    "tare": tare,
-    "lungar": lungar,
-    "nettweight": nettweight,
-    "kissanamt": kissanamt,
-    "hammali": hammali,
-    "hammalipercent": hammalipercent,
-    "commission": commission,
-    "commissionpercent": commissionpercent,
-    "mtax": mtax,
-    "mtaxpercent": mtaxpercent,
-    "ot": ot,
-    "tcs": tcs,
-    "subtotal": subtotal,
-    "grandtotal": grandtotal,
-    "ismultikissan":
-        Provider.of<GrandtotalVisibleProvider>(context, listen: false)
-            .ismultikissan,
-    "adminname": "admin1",
-    "note": note,
-  };
 }
 
 Future _alreadyaccountcheck() async {
@@ -4421,7 +4459,7 @@ Future _alreadyaccountcheck() async {
       .get();
   var billdata = await FirebaseFirestore.instance
       .collection("Bills")
-      .where("bill_no", isEqualTo: invoiceno)
+      .where("invoiceno", isEqualTo: invoiceno)
       .get();
   if (data.docs.isEmpty && billdata.docs.isEmpty) {
     found = false;
@@ -4455,7 +4493,7 @@ _loosecalc() {
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
   grandtotal = subtotal + ot + tcs;
   //ras calc
-  rasController.text = (nettweight / lungar).toString();
+  rasController.text = (nettweight / lungar).toStringAsFixed(2);
 }
 
 _caratecalc() {
@@ -4490,7 +4528,7 @@ _caratecalc() {
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
   grandtotal = subtotal + ot + tcs;
   //ras calc
-  rasController.text = (nettweight / lungar).toString();
+  rasController.text = (nettweight / lungar).toStringAsFixed(2);
 }
 
 _boxcalc() {
@@ -4535,7 +4573,7 @@ _boxcalc() {
 
   grandtotal = subtotal + ot + tcs;
   //ras calc
-  rasController.text = (nettweight / lungar).toString();
+  rasController.text = (nettweight / lungar).toStringAsFixed(2);
 }
 
 Future<void> multikissanbill(context) async {
