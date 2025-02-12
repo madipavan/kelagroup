@@ -32,14 +32,20 @@ class MultiKissanPro extends ChangeNotifier {
     pati.text = "7.5";
     danda.text = "6.0";
     wastage.text = "6.0";
-    bhav.text = Provider.of<MultiKissanPro>(context, listen: false)
-        .multikissan[0]["bhav"]
-        .text;
+    bhav.text =
+        Provider.of<MultiKissanPro>(context, listen: false).multikissan.isEmpty
+            ? ""
+            : Provider.of<MultiKissanPro>(context, listen: false)
+                .multikissan[0]["bhav"]
+                .text;
 
     int kissanid = 0;
 
-    String unit = Provider.of<MultiKissanPro>(context, listen: false)
-        .multikissan[0]["unit"];
+    String unit =
+        Provider.of<MultiKissanPro>(context, listen: false).multikissan.isEmpty
+            ? "Loose"
+            : Provider.of<MultiKissanPro>(context, listen: false).multikissan[0]
+                ["unit"];
     String patiunit = "Percent";
     String dandaunit = "Percent";
     String wastageunit = "Percent";

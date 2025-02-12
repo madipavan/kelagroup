@@ -12,6 +12,7 @@ import 'package:kelawin/presentation/multikissanbill/page/Multi_kissan.dart';
 import 'package:kelawin/presentation/multikissanbill/provider/multi_kissan_pro.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/grandtotal_multikissan.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/wtdiff_table.dart';
+import 'package:kelawin/presentation/user_operations/widgets/user_textfield.dart';
 import 'package:kelawin/utils/apputils.dart';
 import 'package:kelawin/viewmodel/calcWidgetVisibilty/grandtotalvisible_provider.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,7 @@ import '../../../viewmodel/multikissanbillcalc/multi_grandtotal.dart';
 final _formkey = GlobalKey<FormState>();
 int currentindex = 0;
 int kissanadd_index = 1;
-int invoiceno = 0;
+
 DateTime selectedDate = DateTime.now();
 // late DateTime selectedDate = now.format("dd-MM-yyy").toString();
 
@@ -86,8 +87,10 @@ double grandtotal = 0;
 
 String note = "";
 
-int hammalipercent = 20;
-int commissionpercent = 15;
+final TextEditingController _commissionControllerPercent =
+    TextEditingController();
+final TextEditingController _hammaliControllerPercent = TextEditingController();
+
 int mtaxpercent = 1;
 int tcspercent = 0;
 int tdspercent = 0;
@@ -104,18 +107,20 @@ class _CreateBillState extends State<CreateBill> {
   bool danda = false;
   bool wastage = false;
   bool downbtn = false;
+  final bool _toUpdate = false;
   final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     selectedDate = DateTime.now();
+    _commissionControllerPercent.text = "20";
+    _hammaliControllerPercent.text = "15";
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Call your function here
-      var comingnumber = await _getinvoiceno();
-      setState(() {
-        invoiceno = comingnumber;
-      });
+
+      setState(() {});
     });
-    // TODO: implement initState
+
     super.initState();
   }
 
@@ -241,7 +246,7 @@ class _CreateBillState extends State<CreateBill> {
                                     width: Width * 0.01,
                                   ),
                                   Text(
-                                    "#$invoiceno",
+                                    "0",
                                     style: TextStyle(
                                         fontFamily: "sans",
                                         color: Colors.grey.shade500,
@@ -772,6 +777,26 @@ class _CreateBillState extends State<CreateBill> {
                                                 vyaparicity = val["city"];
                                                 vyaparistate = val["state"];
                                                 vyapariphone = val["phone"];
+                                                if (_toUpdate == false) {
+                                                  _commissionControllerPercent
+                                                          .text =
+                                                      val["commissionPercent"]
+                                                          .toString();
+                                                  _hammaliControllerPercent
+                                                          .text =
+                                                      val["hammaliPercent"]
+                                                          .toString();
+                                                  Provider.of<MultiGrandtotal>(
+                                                              context,
+                                                              listen: false)
+                                                          .commissionpercent =
+                                                      val["commissionPercent"];
+                                                  Provider.of<MultiGrandtotal>(
+                                                              context,
+                                                              listen: false)
+                                                          .hammalipercent =
+                                                      val["hammaliPercent"];
+                                                }
                                               });
                                             },
                                             itemBuilder:
@@ -3348,61 +3373,13 @@ class _CreateBillState extends State<CreateBill> {
                                                   SizedBox(
                                                     width: Width * 0.01,
                                                   ),
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              229,
-                                                              241,
-                                                              248),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                    ),
-                                                    height: Height * 0.035,
-                                                    width: Width * 0.03,
-                                                    child: DropdownButton(
-                                                      padding: EdgeInsets.all(
-                                                          Width * 0.0025),
-                                                      iconSize: Width * 0.01,
-                                                      underline: const Text(""),
-                                                      isExpanded: true,
-                                                      dropdownColor:
-                                                          Colors.white,
-                                                      style: TextStyle(
-                                                          fontFamily: "sans",
-                                                          fontSize:
-                                                              Width * 0.01,
-                                                          color:
-                                                              Colors.black87),
-                                                      value: hammalipercent,
-                                                      onChanged:
-                                                          (int? newValue) {
-                                                        setState(() {
-                                                          hammalipercent =
-                                                              newValue!;
-                                                        });
-                                                      },
-                                                      items: <int>[
-                                                        5,
-                                                        10,
-                                                        15,
-                                                        20,
-                                                        25,
-                                                        30
-                                                      ].map<
-                                                              DropdownMenuItem<
-                                                                  int>>(
-                                                          (int value) {
-                                                        return DropdownMenuItem<
-                                                            int>(
-                                                          value: value,
-                                                          child: Text(
-                                                              value.toString()),
-                                                        );
-                                                      }).toList(),
-                                                    ),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: UserTextfield(
+                                                        label: "%",
+                                                        controller:
+                                                            _hammaliControllerPercent,
+                                                        isAmount: true),
                                                   ),
                                                 ],
                                               ),
@@ -3443,61 +3420,13 @@ class _CreateBillState extends State<CreateBill> {
                                                   SizedBox(
                                                     width: Width * 0.01,
                                                   ),
-                                                  Container(
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                          const Color.fromARGB(
-                                                              255,
-                                                              229,
-                                                              241,
-                                                              248),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                    ),
-                                                    height: Height * 0.035,
-                                                    width: Width * 0.03,
-                                                    child: DropdownButton(
-                                                      padding: EdgeInsets.all(
-                                                          Width * 0.0025),
-                                                      iconSize: Width * 0.01,
-                                                      underline: const Text(""),
-                                                      isExpanded: true,
-                                                      dropdownColor:
-                                                          Colors.white,
-                                                      style: TextStyle(
-                                                          fontFamily: "sans",
-                                                          fontSize:
-                                                              Width * 0.01,
-                                                          color:
-                                                              Colors.black87),
-                                                      value: commissionpercent,
-                                                      onChanged:
-                                                          (int? newValue) {
-                                                        setState(() {
-                                                          commissionpercent =
-                                                              newValue!;
-                                                        });
-                                                      },
-                                                      items: <int>[
-                                                        5,
-                                                        10,
-                                                        15,
-                                                        20,
-                                                        25,
-                                                        30,
-                                                      ].map<
-                                                              DropdownMenuItem<
-                                                                  int>>(
-                                                          (int value) {
-                                                        return DropdownMenuItem<
-                                                            int>(
-                                                          value: value,
-                                                          child: Text(
-                                                              value.toString()),
-                                                        );
-                                                      }).toList(),
-                                                    ),
+                                                  Expanded(
+                                                    flex: 1,
+                                                    child: UserTextfield(
+                                                        label: "%",
+                                                        controller:
+                                                            _commissionControllerPercent,
+                                                        isAmount: true),
                                                   ),
                                                 ],
                                               ),
@@ -4373,16 +4302,6 @@ Future _Getdata(search, role) async {
   }
 }
 
-Future _getinvoiceno() async {
-  var data = await FirebaseFirestore.instance
-      .collection("Bills")
-      .orderBy("invoiceno", descending: true)
-      .get();
-
-  int currentbillno = data.docs[0]["invoiceno"] + 1;
-  return currentbillno;
-}
-
 Future _addbill(context) async {
   String billdate = DateFormat('dd-MM-yyyy').format(selectedDate);
 
@@ -4392,7 +4311,7 @@ Future _addbill(context) async {
     Apputils().loader(context);
     if (isDevicesConnected == true) {
       Map<String, dynamic> bill = BillModel(
-              invoiceno: invoiceno,
+              invoiceno: 0,
               date: billdate,
               selectedkissan: selectedkissan.text,
               kissanid: kissanid,
@@ -4423,9 +4342,9 @@ Future _addbill(context) async {
               nettweight: nettweight,
               kissanamt: kissanamt,
               hammali: hammali,
-              hammalipercent: hammalipercent,
+              hammalipercent: int.parse(_hammaliControllerPercent.text),
               commission: commission,
-              commissionpercent: commissionpercent,
+              commissionpercent: int.parse(_commissionControllerPercent.text),
               mtax: mtax,
               mtaxpercent: mtaxpercent,
               ot: ot,
@@ -4457,11 +4376,8 @@ Future _alreadyaccountcheck() async {
       .collection("Bills")
       .where("board", isEqualTo: board)
       .get();
-  var billdata = await FirebaseFirestore.instance
-      .collection("Bills")
-      .where("invoiceno", isEqualTo: invoiceno)
-      .get();
-  if (data.docs.isEmpty && billdata.docs.isEmpty) {
+
+  if (data.docs.isEmpty) {
     found = false;
   } else {
     found = true;
@@ -4486,9 +4402,15 @@ _loosecalc() {
       ((nettweight * 1000).roundToDouble() / 1000).toStringAsFixed(2));
 
   kissanamt = (nettweight * bhav).round().toDouble();
-  hammali = ((nettweight * (hammalipercent / 100)) * 100).round().toDouble();
+  hammali =
+      ((nettweight * (int.parse(_hammaliControllerPercent.text) / 100)) * 100)
+          .round()
+          .toDouble();
   commission =
-      ((nettweight * (commissionpercent / 100)) * 100).round().toDouble();
+      ((nettweight * (int.parse(_commissionControllerPercent.text) / 100)) *
+              100)
+          .round()
+          .toDouble();
   mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
   grandtotal = subtotal + ot + tcs;
@@ -4521,9 +4443,15 @@ _caratecalc() {
   nettweight = double.parse(
       ((nettweight * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   kissanamt = (nettweight * bhav).round().toDouble();
-  hammali = ((nettweight * (hammalipercent / 100)) * 100).round().toDouble();
+  hammali =
+      ((nettweight * (int.parse(_hammaliControllerPercent.text) / 100)) * 100)
+          .round()
+          .toDouble();
   commission =
-      ((nettweight * (commissionpercent / 100)) * 100).round().toDouble();
+      ((nettweight * (int.parse(_commissionControllerPercent.text) / 100)) *
+              100)
+          .round()
+          .toDouble();
   mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
   grandtotal = subtotal + ot + tcs;
@@ -4565,9 +4493,15 @@ _boxcalc() {
   nettweight = double.parse(
       ((nettweight * 1000).roundToDouble() / 1000).toStringAsFixed(2));
   kissanamt = (nettweight * bhav).round().toDouble();
-  hammali = ((nettweight * (hammalipercent / 100)) * 100).round().toDouble();
+  hammali =
+      ((nettweight * (int.parse(_hammaliControllerPercent.text) / 100)) * 100)
+          .round()
+          .toDouble();
   commission =
-      ((nettweight * (commissionpercent / 100)) * 100).round().toDouble();
+      ((nettweight * (int.parse(_commissionControllerPercent.text) / 100)) *
+              100)
+          .round()
+          .toDouble();
   mtax = (kissanamt * (mtaxpercent / 100)).round().toDouble();
   subtotal = (kissanamt + hammali + commission + mtax).round().toDouble();
 
@@ -4587,7 +4521,7 @@ Future<void> multikissanbill(context) async {
       await BillandKhataAddingViewmodel().multiKissanbillAndKhataAmountupdate(
           await MultiGrandtotal().generateMultikissanBill(
               context,
-              invoiceno,
+              0,
               date,
               selectedkissan,
               kissanid,

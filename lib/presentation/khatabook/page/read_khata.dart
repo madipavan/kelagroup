@@ -158,6 +158,14 @@ class _ReadKhataState extends State<ReadKhata> {
                             icon: Icons.timelapse_outlined,
                             color: const Color(0xff424242),
                             label: "Range of days"),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        CustomKhataDetails(
+                            amount: user.note,
+                            icon: Icons.note,
+                            color: const Color(0xff424242),
+                            label: "Note"),
                       ],
                     ),
                     const SizedBox(

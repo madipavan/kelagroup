@@ -9,9 +9,10 @@ import 'package:provider/provider.dart';
 
 class Typeahead extends StatelessWidget {
   final int index;
-  TextEditingController typecontroller;
+  final TextEditingController typecontroller;
 
-  Typeahead({super.key, required this.typecontroller, required this.index});
+  const Typeahead(
+      {super.key, required this.typecontroller, required this.index});
 
   @override
   Widget build(BuildContext context) {

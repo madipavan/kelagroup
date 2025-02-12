@@ -10,9 +10,9 @@ import '../provider/multi_kissan_pro.dart';
 
 class KelagroupTextfeild extends StatelessWidget {
   final int index;
-  TextEditingController typecontroller;
+  final TextEditingController typecontroller;
 
-  KelagroupTextfeild(
+  const KelagroupTextfeild(
       {super.key, required this.typecontroller, required this.index});
 
   @override

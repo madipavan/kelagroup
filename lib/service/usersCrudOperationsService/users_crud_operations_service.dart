@@ -68,15 +68,9 @@ class UsersCrudOperationsService {
   Future addUser(UserModel user, KhataModel userKhata) async {
     try {
       WriteBatch batch = firebase.batch();
-      //for user
-      QuerySnapshot<Map<String, dynamic>> lastUser = await firebase
-          .collection("Users")
-          .where("role", isEqualTo: user.role)
-          .orderBy("userId", descending: true)
-          .limit(1)
-          .get();
+      //for userid
 
-      int newUserID = lastUser.docs[0]["userId"] + 1;
+      int newUserID = await generateUniqueUserId(user.role);
       user.userId = newUserID;
 
       if (user.role == "kissan") {
@@ -84,13 +78,8 @@ class UsersCrudOperationsService {
         user.password = "password${user.userId}";
       }
       //now for khata
-      QuerySnapshot<Map<String, dynamic>> lastKhata = await firebase
-          .collection("Khata")
-          .orderBy("khataId", descending: true)
-          .limit(1)
-          .get();
 
-      int newKhataID = lastKhata.docs[0]["khataId"] + 1;
+      int newKhataID = await generateUniqueUserKhataId();
 
       Map<String, dynamic> khata = KhataModel(
               khataId: newKhataID,
@@ -104,11 +93,63 @@ class UsersCrudOperationsService {
       final khataRef = firebase.collection("Khata").doc();
       batch.set(userRef, user.toMap());
       batch.set(khataRef, khata);
-      batch.commit();
+      await batch.commit();
     } on FirebaseException catch (e) {
       throw Exception("${e}Error while adding user");
     } catch (e) {
       throw Exception("${e}Error while adding user");
     }
+  }
+
+  //generating userID
+  Future<int> generateUniqueUserId(String role) async {
+    final usersRef = FirebaseFirestore.instance.collection('Users');
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Get the last bill (sorted by bill_number in descending order)
+      final lastUserQuery = await usersRef
+          .where("role", isEqualTo: role)
+          .orderBy('userId', descending: true)
+          .limit(1)
+          .get();
+
+      int lastUserId = 0; // Default starting number if no bills exist
+      if (role == "vyapari") {
+        lastUserId = 20000;
+      } else if (role == "kissan") {
+        lastUserId = 10000;
+      } else if (role == "kelagroup") {
+        lastUserId = 30000;
+      }
+
+      if (lastUserQuery.docs.isNotEmpty) {
+        lastUserId = lastUserQuery.docs.first.data()['userId'];
+      }
+
+      int newUserId = lastUserId + 1;
+
+      return newUserId;
+    });
+  }
+
+  //generating khataID
+  Future<int> generateUniqueUserKhataId() async {
+    final usersRef = FirebaseFirestore.instance.collection('Khata');
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Get the last bill (sorted by bill_number in descending order)
+      final lastKhataQuery =
+          await usersRef.orderBy('khataId', descending: true).limit(1).get();
+
+      int lastKhataId = 0; // Default starting number if no bills exist
+
+      if (lastKhataQuery.docs.isNotEmpty) {
+        lastKhataId = lastKhataQuery.docs.first.data()['userId'];
+      }
+
+      int newKhataId = lastKhataId + 1;
+
+      return newKhataId;
+    });
   }
 }

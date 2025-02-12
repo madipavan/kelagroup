@@ -62,8 +62,6 @@ class _CreateUserState extends State<CreateUser> {
       balanceSheetHead: "Assets");
   String _branch = "Shahpur";
 
-  int _hammaliPercent = 5;
-  int _commissionPercent = 5;
   //form
   final _formkey = GlobalKey<FormState>();
   //controllers
@@ -81,6 +79,8 @@ class _CreateUserState extends State<CreateUser> {
   TextEditingController userReceived = TextEditingController();
   TextEditingController userDue = TextEditingController();
   TextEditingController note = TextEditingController();
+  TextEditingController commissionController = TextEditingController();
+  TextEditingController hammaliController = TextEditingController();
 
   List<LedgergroupModel> _ledgerGroupList = [];
   List<String> _branchList = [];
@@ -118,6 +118,8 @@ class _CreateUserState extends State<CreateUser> {
         userPan.text = widget.user!.panCard;
         note.text = widget.user!.note;
         _branch = widget.user!.branch;
+        commissionController.text = widget.user!.commissionPercent.toString();
+        hammaliController.text = widget.user!.hammaliPercent.toString();
         _ledgerGroup = _ledgerGroupList.firstWhere(
           (element) => element.ledgerGroupId == widget.user!.ledgerGroupId,
           orElse: () => _ledgerGroup, // Avoids errors if no match is found
@@ -140,6 +142,8 @@ class _CreateUserState extends State<CreateUser> {
         _ledgerGroupList = _ledgerGroupList;
         _ledgerGroup = _ledgerGroupList[0];
         _branch = _branchList[0];
+        commissionController.text = "0";
+        hammaliController.text = "0";
         _isLoading = _isLoading;
       });
     }
@@ -161,6 +165,8 @@ class _CreateUserState extends State<CreateUser> {
     userBalance.dispose();
     userReceived.dispose();
     userDue.dispose();
+    commissionController.dispose();
+    hammaliController.dispose();
     note.dispose();
     super.dispose();
   }
@@ -524,125 +530,21 @@ class _CreateUserState extends State<CreateUser> {
                                             children: [
                                               Expanded(
                                                 flex: 1,
-                                                child: Tooltip(
-                                                  message: "Commission",
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.grey,
-                                                            width: 1),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5)),
-                                                    width: 100,
-                                                    child: DropdownButton(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 5),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                      underline: const Text(""),
-                                                      isExpanded: true,
-                                                      dropdownColor:
-                                                          Colors.white,
-                                                      style: const TextStyle(
-                                                          fontFamily: "sans",
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              Colors.black87),
-                                                      value: _commissionPercent,
-                                                      onChanged:
-                                                          (int? newValue) {
-                                                        setState(() {
-                                                          _commissionPercent =
-                                                              newValue!;
-                                                        });
-                                                      },
-                                                      items: <int>[
-                                                        5,
-                                                        10,
-                                                        15,
-                                                        20,
-                                                        25,
-                                                        30,
-                                                      ].map<
-                                                              DropdownMenuItem<
-                                                                  int>>(
-                                                          (int value) {
-                                                        return DropdownMenuItem<
-                                                            int>(
-                                                          value: value,
-                                                          child: Text(
-                                                              value.toString()),
-                                                        );
-                                                      }).toList(),
-                                                    ),
-                                                  ),
-                                                ),
+                                                child: UserTextfield(
+                                                    label: "Commisssion",
+                                                    controller:
+                                                        commissionController,
+                                                    isAmount: true),
                                               ),
                                               const SizedBox(
                                                 width: 50,
                                               ),
                                               Expanded(
                                                 flex: 1,
-                                                child: Tooltip(
-                                                  message: "Hammali",
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.grey,
-                                                            width: 1),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5)),
-                                                    width: 100,
-                                                    child: DropdownButton(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 5),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              5),
-                                                      underline: const Text(""),
-                                                      isExpanded: true,
-                                                      dropdownColor:
-                                                          Colors.white,
-                                                      style: const TextStyle(
-                                                          fontFamily: "sans",
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color:
-                                                              Colors.black87),
-                                                      value: _hammaliPercent,
-                                                      onChanged:
-                                                          (int? newValue) {
-                                                        setState(() {
-                                                          _hammaliPercent =
-                                                              newValue!;
-                                                        });
-                                                      },
-                                                      items: <int>[
-                                                        5,
-                                                        10,
-                                                        15,
-                                                        20,
-                                                        25,
-                                                        30
-                                                      ].map<
-                                                              DropdownMenuItem<
-                                                                  int>>(
-                                                          (int value) {
-                                                        return DropdownMenuItem<
-                                                            int>(
-                                                          value: value,
-                                                          child: Text(
-                                                              value.toString()),
-                                                        );
-                                                      }).toList(),
-                                                    ),
-                                                  ),
+                                                child: UserTextfield(
+                                                  label: "Hammali",
+                                                  controller: hammaliController,
+                                                  isAmount: true,
                                                 ),
                                               ),
                                             ],
@@ -873,7 +775,7 @@ class _CreateUserState extends State<CreateUser> {
                                           child: Row(
                                             children: [
                                               Expanded(
-                                                flex: 3,
+                                                flex: 2,
                                                 child: UserTextfield(
                                                   label: "Balance",
                                                   isAmount: true,
@@ -882,8 +784,11 @@ class _CreateUserState extends State<CreateUser> {
                                                       Icons.business_rounded),
                                                 ),
                                               ),
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
                                               Expanded(
-                                                flex: 3,
+                                                flex: 2,
                                                 child: UserTextfield(
                                                   label: "Cr Amt",
                                                   isAmount: true,
@@ -892,8 +797,11 @@ class _CreateUserState extends State<CreateUser> {
                                                       Icons.business_rounded),
                                                 ),
                                               ),
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
                                               Expanded(
-                                                flex: 3,
+                                                flex: 2,
                                                 child: UserTextfield(
                                                   label: "Dr Amt",
                                                   isAmount: true,
@@ -970,8 +878,12 @@ class _CreateUserState extends State<CreateUser> {
                                                               userEmail.text,
                                                               userAadhar.text,
                                                               userPan.text,
-                                                              _commissionPercent,
-                                                              _hammaliPercent,
+                                                              int.parse(
+                                                                  commissionController
+                                                                      .text),
+                                                              int.parse(
+                                                                  hammaliController
+                                                                      .text),
                                                               _branch,
                                                               _ledgerGroup
                                                                   .ledgerGroupId,

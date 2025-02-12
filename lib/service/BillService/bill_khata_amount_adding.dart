@@ -9,6 +9,10 @@ class BillandKhataAmountAdding {
   ) async {
     try {
       WriteBatch batch = firebase.batch();
+      //getting billnumber
+      int invoiceno = await generateUniqueBillNumber();
+      bill["invoiceno"] = invoiceno;
+      //getting billnumber
       //adding bill
       final billsRef = firebase.collection("Bills").doc();
       // Perform the transaction
@@ -187,6 +191,10 @@ class BillandKhataAmountAdding {
   ) async {
     try {
       WriteBatch batch = firebase.batch();
+      //getting billnumber
+      int invoiceno = await generateUniqueBillNumber();
+      bill["invoiceno"] = invoiceno;
+      //getting billnumber
       //adding bill
       final billsRef = firebase.collection("Bills").doc();
       batch.set(billsRef, bill);
@@ -422,5 +430,25 @@ class BillandKhataAmountAdding {
       print("${e}error in adding bill on server");
       throw Exception(e.toString());
     }
+  }
+
+  //generating number
+  Future<int> generateUniqueBillNumber() async {
+    final billsRef = FirebaseFirestore.instance.collection('Bills');
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Get the last bill (sorted by bill_number in descending order)
+      final lastBillQuery =
+          await billsRef.orderBy('invoiceno', descending: true).limit(1).get();
+
+      int lastBillNumber = 0; // Default starting number if no bills exist
+      if (lastBillQuery.docs.isNotEmpty) {
+        lastBillNumber = lastBillQuery.docs.first.data()['invoiceno'];
+      }
+
+      int newBillNumber = lastBillNumber + 1;
+
+      return newBillNumber;
+    });
   }
 }

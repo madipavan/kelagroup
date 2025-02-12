@@ -42,11 +42,8 @@ class AddDeleteTransactionService {
           .update(khataRef, {"total": total, "due": due, "received": received});
       //updating values in khata
       //adding transaction
-      QuerySnapshot transactionData = await firebase
-          .collection("${role}_transaction")
-          .orderBy("transactionId", descending: true)
-          .get();
-      int newtransactionId = transactionData.docs[0]["transactionId"] + 1;
+
+      int newtransactionId = await generateUniqueTransactionId(role);
       transaction["transactionId"] = newtransactionId;
       transaction["khataId"] = khataDoc.docs[0]["khataId"].toString();
 
@@ -119,5 +116,38 @@ class AddDeleteTransactionService {
       print("deletion of transaction $e");
       throw Exception(e.toString());
     }
+  }
+
+  //generating transactionid
+  Future<int> generateUniqueTransactionId(String role) async {
+    final transactionsRef =
+        FirebaseFirestore.instance.collection('${role}_transaction');
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      // Get the last bill (sorted by bill_number in descending order)
+      final lastTransactionBillQuery = await transactionsRef
+          .orderBy('transactionId', descending: true)
+          .limit(1)
+          .get();
+
+      int lastTransactionNumber =
+          0; // Default starting number if no bills exist
+      if (role == "vyapari") {
+        lastTransactionNumber = 9000000;
+      } else if (role == "kissan") {
+        lastTransactionNumber = 8000000;
+      } else if (role == "kelagroup") {
+        lastTransactionNumber = 7000000;
+      }
+
+      if (lastTransactionBillQuery.docs.isNotEmpty) {
+        lastTransactionNumber =
+            lastTransactionBillQuery.docs.first.data()['transactionId'];
+      }
+
+      int newBillNumber = lastTransactionNumber + 1;
+
+      return newBillNumber;
+    });
   }
 }

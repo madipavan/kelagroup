@@ -10,7 +10,8 @@ import 'viewmodel/multikissanbillcalc/multi_grandtotal.dart';
 
 void main() async {
   //load fix commission and hammali when load bill
-  //add tds in bill
+  //explain when selecting vyapari the commision hammali change keep in mind while editing
+  //user cannot change vyapri while editing
   //while deleting bill check if user exist or not
   await const MyApp()._datacon();
 

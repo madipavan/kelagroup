@@ -20,6 +20,7 @@ class MakePayment extends StatefulWidget {
 final _formkey = GlobalKey<FormState>();
 String paymentMode = "BANK";
 String paymentType = "CREDIT";
+String _vocType = "GENERAL";
 int selectedBill = 0;
 DateTime transactionRecievedDate = DateTime.now();
 
@@ -29,6 +30,7 @@ TextEditingController userName = TextEditingController();
 TextEditingController userId = TextEditingController();
 TextEditingController receiverName = TextEditingController();
 TextEditingController amount = TextEditingController();
+TextEditingController _note = TextEditingController();
 
 class _MakePaymentState extends State<MakePayment> {
   @override
@@ -65,7 +67,7 @@ class _MakePaymentState extends State<MakePayment> {
             width: 15,
           ),
           Text(
-            'Payment',
+            'Vocher',
             style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,
@@ -78,7 +80,7 @@ class _MakePaymentState extends State<MakePayment> {
         children: [
           SizedBox(
             width: 500,
-            height: 450,
+            height: 500,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 40),
               child: Form(
@@ -160,6 +162,52 @@ class _MakePaymentState extends State<MakePayment> {
                                 'CHEQUE',
                                 'CASH',
                                 'UPI'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.white,
+                                border:
+                                    Border.all(width: 1, color: Colors.grey)),
+                            child: DropdownButton(
+                              padding: const EdgeInsets.only(left: 5),
+                              iconSize: 15,
+                              underline: const Text(""),
+                              isExpanded: true,
+                              borderRadius: BorderRadius.circular(5),
+                              dropdownColor: Colors.white,
+                              style: const TextStyle(
+                                  fontFamily: "sans",
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87),
+                              value: _vocType,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _vocType = newValue!;
+                                });
+                              },
+                              items: <String>[
+                                'GENERAL',
+                                'CONTRA',
+                                'SALES',
+                                'PURCHASES',
+                                'PAYMENT',
+                                'RECEIVED',
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -307,6 +355,18 @@ class _MakePaymentState extends State<MakePayment> {
                       isAmount: true,
                       prefix: const Icon(Icons.currency_rupee),
                       label: "Amount",
+                    ),
+                    CustomtextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _note.text = _note.text;
+                        });
+                      },
+                      controller: _note,
+                      readOnly: false,
+                      isAmount: false,
+                      prefix: const Icon(Icons.note),
+                      label: "Note",
                     ),
                     SizedBox(
                       width: double.infinity,
