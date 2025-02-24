@@ -8,8 +8,10 @@ class MultiKissanPro extends ChangeNotifier {
 
   static List<Map> multikissanCalclist = [];
 
-  void addintolist(context) async {
-    multikissan.add(await kissan(context));
+  void addintolist(BuildContext context) async {
+    final newItem = kissan(context);
+    multikissan.add(newItem);
+
     multikissanCalclist = multikissan;
     notifyListeners();
   }
@@ -20,7 +22,13 @@ class MultiKissanPro extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<Map> kissan(context) async {
+  void clearlist(context) async {
+    multikissan.clear();
+    MultiKissanPro.multikissanCalclist.clear();
+    notifyListeners();
+  }
+
+  Map kissan(context) {
     TextEditingController name = TextEditingController();
     TextEditingController pati = TextEditingController();
     TextEditingController danda = TextEditingController();
@@ -28,6 +36,13 @@ class MultiKissanPro extends ChangeNotifier {
     TextEditingController bhav = TextEditingController();
     TextEditingController weight = TextEditingController();
     TextEditingController lungar = TextEditingController();
+
+    TextEditingController kelagroupCommissionPercent =
+        TextEditingController(text: "15");
+    TextEditingController kelagroupHammaliPercent =
+        TextEditingController(text: "20");
+    TextEditingController kelagroupMtaxPercent =
+        TextEditingController(text: "1");
 
     pati.text = "7.5";
     danda.text = "6.0";
@@ -76,6 +91,9 @@ class MultiKissanPro extends ChangeNotifier {
       "netwt": netwt,
       "lungar": lungar,
       "amount": amount,
+      "kelagroupCommissionPercent": kelagroupCommissionPercent,
+      "kelagroupHammaliPercent": kelagroupHammaliPercent,
+      "kelagroupMtaxPercent": kelagroupMtaxPercent,
       "iskelagroup": false,
     };
   }
@@ -121,6 +139,8 @@ class MultiKissanPro extends ChangeNotifier {
             ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
                 .toStringAsFixed(2))
         .round();
+
+    notifyListeners();
   }
 
   caratecalc(index) {
@@ -164,6 +184,7 @@ class MultiKissanPro extends ChangeNotifier {
             ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
                 .toStringAsFixed(2))
         .round();
+    notifyListeners();
   }
 
   boxcalc(index) {
@@ -223,9 +244,10 @@ class MultiKissanPro extends ChangeNotifier {
             ((multikissan[index]["amount"] * 1000).roundToDouble() / 1000)
                 .toStringAsFixed(2))
         .round();
+    notifyListeners();
   }
 
-  void kelagroupcalc(index, String hammali, String commission, String mtax) {
+  kelagroupcalc(index, String hammali, String commission, String mtax) {
     double ot = 50;
     multikissan[index]["amount"] = (multikissan[index]["netwt"] *
         double.parse(multikissan[index]["bhav"].text.toString()));
@@ -240,8 +262,19 @@ class MultiKissanPro extends ChangeNotifier {
         (multikissan[index]["amount"] + hammali0 + commission0 + mtax0 + ot)
             .round()
             .toDouble();
+
+    notifyListeners();
   }
 
-  @override
-  notifyListeners();
+  void updateMultiKissan(List<Map> newList) {
+    multikissan = newList;
+    multikissanCalclist = newList;
+    notifyListeners(); // ✅ Ensures UI rebuilds
+  }
+
+  void updateUi() {
+    multikissan = multikissan;
+    multikissanCalclist = multikissan;
+    notifyListeners(); // ✅ Ensures UI rebuilds
+  }
 }

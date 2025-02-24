@@ -52,6 +52,19 @@ class _MakePaymentState extends State<MakePayment> {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+
+    userName.clear();
+    userId.clear();
+    receiverName.clear();
+    amount.clear();
+    _note.clear();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: Colors.white,
@@ -117,11 +130,6 @@ class _MakePaymentState extends State<MakePayment> {
                         Expanded(
                             flex: 3,
                             child: CustomtextField(
-                              onChanged: (value) {
-                                setState(() {
-                                  receiverName.text = receiverName.text;
-                                });
-                              },
                               controller: receiverName,
                               readOnly: false,
                               isAmount: false,
@@ -345,11 +353,6 @@ class _MakePaymentState extends State<MakePayment> {
                       ],
                     ),
                     CustomtextField(
-                      onChanged: (value) {
-                        setState(() {
-                          amount.text = amount.text;
-                        });
-                      },
                       controller: amount,
                       readOnly: false,
                       isAmount: true,
@@ -357,11 +360,6 @@ class _MakePaymentState extends State<MakePayment> {
                       label: "Amount",
                     ),
                     CustomtextField(
-                      onChanged: (value) {
-                        setState(() {
-                          _note.text = _note.text;
-                        });
-                      },
                       controller: _note,
                       readOnly: false,
                       isAmount: false,
@@ -380,6 +378,7 @@ class _MakePaymentState extends State<MakePayment> {
                             TransactionModel transaction = TransactionModel(
                                 transactionId: 0,
                                 transactionType: paymentType,
+                                vocherType: _vocType,
                                 date: DateFormat('dd-MM-yyyy')
                                     .format(transactionRecievedDate)
                                     .toString(),

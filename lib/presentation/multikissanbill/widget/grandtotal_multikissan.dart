@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodel/multikissanbillcalc/multi_grandtotal.dart';
+import '../../user_operations/widgets/user_textfield.dart';
 
 class GrandtotalMultikissan extends StatefulWidget {
   const GrandtotalMultikissan({super.key});
@@ -98,43 +99,15 @@ class _GrandtotalMultikissanState extends State<GrandtotalMultikissan> {
                             SizedBox(
                               width: Width * 0.01,
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 229, 241, 248),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              height: Height * 0.035,
-                              width: Width * 0.03,
-                              child: DropdownButton(
-                                padding: EdgeInsets.all(Width * 0.0025),
-                                iconSize: Width * 0.01,
-                                underline: const Text(""),
-                                isExpanded: true,
-                                dropdownColor: Colors.white,
-                                style: TextStyle(
-                                    fontFamily: "sans",
-                                    fontSize: Width * 0.01,
-                                    color: Colors.black87),
-                                value: value.hammalipercent,
-                                onChanged: (int? newValue) {
-                                  setState(() {
-                                    value.hammalipercent = newValue!;
-                                  });
-                                },
-                                items: <int>[
-                                  5,
-                                  10,
-                                  15,
-                                  20,
-                                  25,
-                                  30,
-                                ].map<DropdownMenuItem<int>>((int value) {
-                                  return DropdownMenuItem<int>(
-                                    value: value,
-                                    child: Text(value.toString()),
-                                  );
-                                }).toList(),
-                              ),
+                            Expanded(
+                              flex: 1,
+                              child: UserTextfield(
+                                  onChanged: (val) {
+                                    value.hammalipercent = int.parse(val);
+                                  },
+                                  label: "%",
+                                  controller: value.hammaliControllerPercent,
+                                  isAmount: true),
                             ),
                           ],
                         ),
@@ -170,43 +143,15 @@ class _GrandtotalMultikissanState extends State<GrandtotalMultikissan> {
                             SizedBox(
                               width: Width * 0.01,
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color.fromARGB(255, 229, 241, 248),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              height: Height * 0.035,
-                              width: Width * 0.03,
-                              child: DropdownButton(
-                                padding: EdgeInsets.all(Width * 0.0025),
-                                iconSize: Width * 0.01,
-                                underline: const Text(""),
-                                isExpanded: true,
-                                dropdownColor: Colors.white,
-                                style: TextStyle(
-                                    fontFamily: "sans",
-                                    fontSize: Width * 0.01,
-                                    color: Colors.black87),
-                                value: value.commissionpercent,
-                                onChanged: (int? newValue) {
-                                  setState(() {
-                                    value.commissionpercent = newValue!;
-                                  });
-                                },
-                                items: <int>[
-                                  5,
-                                  10,
-                                  15,
-                                  20,
-                                  25,
-                                  30,
-                                ].map<DropdownMenuItem<int>>((int value) {
-                                  return DropdownMenuItem<int>(
-                                    value: value,
-                                    child: Text(value.toString()),
-                                  );
-                                }).toList(),
-                              ),
+                            Expanded(
+                              flex: 1,
+                              child: UserTextfield(
+                                  onChanged: (val) {
+                                    value.commissionpercent = int.parse(val);
+                                  },
+                                  label: "%",
+                                  controller: value.commissionControllerPercent,
+                                  isAmount: true),
                             ),
                           ],
                         ),

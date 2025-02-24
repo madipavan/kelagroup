@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kelawin/presentation/multikissanbill/provider/multi_kissan_pro.dart';
-import 'package:kelawin/presentation/multikissanbill/widget/custom_dropdown.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/customicon_btn.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/kgpercent_dropdowm.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/text_with_feild.dart';
@@ -8,6 +7,7 @@ import 'package:kelawin/presentation/multikissanbill/widget/typeahead.dart';
 import 'package:kelawin/presentation/multikissanbill/widget/weight_container.dart';
 import 'package:provider/provider.dart';
 
+import '../../user_operations/widgets/user_textfield.dart';
 import '../widget/kelagroup_textfeild.dart';
 
 class MultiKissan extends StatefulWidget {
@@ -33,6 +33,7 @@ class _MultiKissanState extends State<MultiKissan> {
   Widget build(BuildContext context) {
     final Height = MediaQuery.of(context).size.height;
     final Width = MediaQuery.of(context).size.width;
+    Provider.of<MultiKissanPro>(context, listen: true).multikissan;
     return Consumer<MultiKissanPro>(
       builder: (context, value, child) => value.multikissan.isEmpty
           ? const Center(
@@ -67,6 +68,9 @@ class _MultiKissanState extends State<MultiKissan> {
                 kelaGroupcommissionpercentList.add(kelaGroupcommissionpercent);
                 kelaGroupmtaxpercentList.add(kelaGroupmtaxpercent);
                 kelaGrouptcspercentList.add(kelaGrouptcspercent);
+
+                isKelagroupvisible[index] =
+                    value.multikissan[index]["iskelagroup"];
                 //
                 //resettlement becoz when we remove old one the values remains same
                 if (value.multikissan[index]["unit"] == "Loose") {
@@ -348,27 +352,14 @@ class _MultiKissanState extends State<MultiKissan> {
                                   children: [
                                     Tooltip(
                                       message: "Hammali",
-                                      child: CustomDropdown(
-                                        val: kelaGrouphammalipercentList[index],
-                                        onChanged: (val) {
-                                          setState(() {
-                                            kelaGrouphammalipercentList[index] =
-                                                val;
-                                          });
-                                        },
-                                        percentlist: <String>[
-                                          '5',
-                                          '10',
-                                          '15',
-                                          '20',
-                                          '25',
-                                        ].map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
+                                      child: SizedBox(
+                                        height: 40,
+                                        width: 50,
+                                        child: UserTextfield(
+                                            label: "%",
+                                            controller: value.multikissan[index]
+                                                ["kelagroupHammaliPercent"],
+                                            isAmount: true),
                                       ),
                                     ),
                                     const SizedBox(
@@ -376,28 +367,14 @@ class _MultiKissanState extends State<MultiKissan> {
                                     ),
                                     Tooltip(
                                       message: "Commission",
-                                      child: CustomDropdown(
-                                        val: kelaGroupcommissionpercentList[
-                                            index],
-                                        onChanged: (val) {
-                                          setState(() {
-                                            kelaGrouphammalipercentList[index] =
-                                                val;
-                                          });
-                                        },
-                                        percentlist: <String>[
-                                          '5',
-                                          '10',
-                                          '15',
-                                          '20',
-                                          '25',
-                                        ].map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
+                                      child: SizedBox(
+                                        height: 40,
+                                        width: 50,
+                                        child: UserTextfield(
+                                            label: "%",
+                                            controller: value.multikissan[index]
+                                                ["kelagroupCommissionPercent"],
+                                            isAmount: true),
                                       ),
                                     ),
                                     const SizedBox(
@@ -405,27 +382,14 @@ class _MultiKissanState extends State<MultiKissan> {
                                     ),
                                     Tooltip(
                                       message: "Mtax",
-                                      child: CustomDropdown(
-                                        val: kelaGroupmtaxpercentList[index],
-                                        onChanged: (val) {
-                                          setState(() {
-                                            kelaGroupmtaxpercentList[index] =
-                                                val;
-                                          });
-                                        },
-                                        percentlist: <String>[
-                                          '1',
-                                          '2',
-                                          '3',
-                                          '4',
-                                          '5',
-                                        ].map<DropdownMenuItem<String>>(
-                                            (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        }).toList(),
+                                      child: SizedBox(
+                                        height: 40,
+                                        width: 50,
+                                        child: UserTextfield(
+                                            label: "%",
+                                            controller: value.multikissan[index]
+                                                ["kelagroupMtaxPercent"],
+                                            isAmount: true),
                                       ),
                                     ),
                                   ],
@@ -458,10 +422,18 @@ class _MultiKissanState extends State<MultiKissan> {
                                       if (isKelagroupvisible[index]) {
                                         value.kelagroupcalc(
                                             index,
-                                            kelaGrouphammalipercentList[index],
-                                            kelaGroupcommissionpercentList[
-                                                index],
-                                            kelaGroupmtaxpercentList[index]);
+                                            value
+                                                .multikissan[index]
+                                                    ["kelagroupHammaliPercent"]
+                                                .text,
+                                            value
+                                                .multikissan[index][
+                                                    "kelagroupCommissionPercent"]
+                                                .text,
+                                            value
+                                                .multikissan[index]
+                                                    ["kelagroupMtaxPercent"]
+                                                .text);
                                       }
                                     });
                                   },

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kelawin/Models/transaction_model.dart';
+import 'package:synchronized/synchronized.dart';
 
 class AddDeleteTransactionService {
   final firebase = FirebaseFirestore.instance;
@@ -43,8 +44,6 @@ class AddDeleteTransactionService {
       //updating values in khata
       //adding transaction
 
-      int newtransactionId = await generateUniqueTransactionId(role);
-      transaction["transactionId"] = newtransactionId;
       transaction["khataId"] = khataDoc.docs[0]["khataId"].toString();
 
       final transactionRef = firebase.collection("${role}_transaction").doc();
@@ -120,34 +119,46 @@ class AddDeleteTransactionService {
 
   //generating transactionid
   Future<int> generateUniqueTransactionId(String role) async {
-    final transactionsRef =
-        FirebaseFirestore.instance.collection('${role}_transaction');
+    // Create a lock instance
+    int newTransactionId = 0;
+    final counterRef = FirebaseFirestore.instance
+        .collection('idCounters')
+        .doc("${role}TransactionIdCounter");
+    try {
+      final lock = Lock();
+      await lock.synchronized(() async {
+        return await FirebaseFirestore.instance
+            .runTransaction((transaction) async {
+          // Get the last bill (sorted by bill_number in descending order)
+          DocumentSnapshot counterDoc = await transaction.get(counterRef);
 
-    return FirebaseFirestore.instance.runTransaction((transaction) async {
-      // Get the last bill (sorted by bill_number in descending order)
-      final lastTransactionBillQuery = await transactionsRef
-          .orderBy('transactionId', descending: true)
-          .limit(1)
-          .get();
+          int lastTransactionId =
+              0; // Default starting number if no bills exist
+          if (role == "vyapari") {
+            lastTransactionId = 9000000;
+          } else if (role == "kissan") {
+            lastTransactionId = 8000000;
+          } else if (role == "kelagroup") {
+            lastTransactionId = 7000000;
+          }
 
-      int lastTransactionNumber =
-          0; // Default starting number if no bills exist
-      if (role == "vyapari") {
-        lastTransactionNumber = 9000000;
-      } else if (role == "kissan") {
-        lastTransactionNumber = 8000000;
-      } else if (role == "kelagroup") {
-        lastTransactionNumber = 7000000;
-      }
+          if (!counterDoc.exists) {
+          } else {
+            lastTransactionId = counterDoc.exists
+                ? (counterDoc.get("transactionId") ?? lastTransactionId)
+                : lastTransactionId;
+            newTransactionId = lastTransactionId + 1;
+            transaction.update(counterRef, {"transactionId": newTransactionId});
+          }
 
-      if (lastTransactionBillQuery.docs.isNotEmpty) {
-        lastTransactionNumber =
-            lastTransactionBillQuery.docs.first.data()['transactionId'];
-      }
-
-      int newBillNumber = lastTransactionNumber + 1;
-
-      return newBillNumber;
-    });
+          return newTransactionId;
+        });
+      });
+      return newTransactionId;
+    } on FirebaseException catch (e) {
+      throw Exception("${e}Error while creating userId");
+    } catch (e) {
+      throw Exception("${e}Error while creating userId");
+    }
   }
 }

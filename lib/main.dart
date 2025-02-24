@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:kelawin/Modules/Mainscreen.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await FirebaseFirestore.instance.runTransaction((transaction) async {});
 
     // await Firebase.initializeApp(
     //     options: const FirebaseOptions(
@@ -59,20 +61,3 @@ class MyApp extends StatelessWidget {
     //         projectId: "aniket1-d3f36"));
   }
 }
-
-// Future _temp() async {
-//   print("object");
-//   try {
-//     var data = await FirebaseFirestore.instance.collection("Bills").get();
-//     for (var element in data.docs) {
-//       if (element["ismultikissan"] == false) {
-//         await element.reference.update({
-//           'lungar': double.parse(element["lungar"].toString()),
-//         });
-//       }
-//     }
-//     print("done");
-//   } catch (e) {
-//     print(e.toString());
-//   }
-// }

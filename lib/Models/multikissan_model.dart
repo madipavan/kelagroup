@@ -12,6 +12,10 @@ class MultikissanModel {
   String wastageunit;
 
   int userId;
+  int kelagroupCommissionPercent;
+  int kelagroupHammaliPercent;
+  int kelagroupMtaxPercent;
+
   double patiwt;
   double dandawt;
   double wastagewt;
@@ -40,6 +44,9 @@ class MultikissanModel {
     required this.netwt,
     required this.iskelagroup,
     required this.amount,
+    required this.kelagroupCommissionPercent,
+    required this.kelagroupHammaliPercent,
+    required this.kelagroupMtaxPercent,
   });
 
   factory MultikissanModel.forTextFields(Map kissan) {
@@ -64,6 +71,15 @@ class MultikissanModel {
         wastagewt: kissan["wastagewt"],
         netwt: kissan["netwt"],
         iskelagroup: kissan["iskelagroup"],
+        kelagroupCommissionPercent: kissan["iskelagroup"]
+            ? int.parse(kissan["kelagroupCommissionPercent"].text)
+            : 0,
+        kelagroupHammaliPercent: kissan["iskelagroup"]
+            ? int.parse(kissan["kelagroupHammaliPercent"].text)
+            : 0,
+        kelagroupMtaxPercent: kissan["iskelagroup"]
+            ? int.parse(kissan["kelagroupMtaxPercent"].text)
+            : 0,
         amount: double.parse(kissan["amount"].toString()));
   }
 
@@ -86,6 +102,12 @@ class MultikissanModel {
         wastagewt: kissan["wastagewt"],
         netwt: kissan["netwt"],
         iskelagroup: kissan["iskelagroup"],
+        kelagroupCommissionPercent:
+            kissan["iskelagroup"] ? kissan["kelagroupCommissionPercent"] : 0,
+        kelagroupHammaliPercent:
+            kissan["iskelagroup"] ? kissan["kelagroupHammaliPercent"] : 0,
+        kelagroupMtaxPercent:
+            kissan["iskelagroup"] ? kissan["kelagroupMtaxPercent"] : 0,
         amount: kissan["amount"]);
   }
 }

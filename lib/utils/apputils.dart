@@ -217,6 +217,7 @@ class Apputils {
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                     Navigator.of(context).pop(); // Close the loader
+                    Navigator.of(context).pop(); // Close the loader
                   },
                   style: ElevatedButton.styleFrom(
                       // primary: Colors.white,

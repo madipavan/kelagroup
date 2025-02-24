@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kelawin/Models/multikissan_model.dart';
 
 class BillModel {
@@ -40,7 +39,9 @@ class BillModel {
   final int mtaxpercent;
   final int ot;
   final double tcs;
+  final int tcspercent;
   final double tds;
+  final int tdspercent;
   final double subtotal;
   final double grandtotal;
   final int adminId;
@@ -87,6 +88,8 @@ class BillModel {
       required this.mtaxpercent,
       required this.ot,
       required this.tcs,
+      required this.tcspercent,
+      required this.tdspercent,
       required this.tds,
       required this.subtotal,
       required this.grandtotal,
@@ -95,8 +98,7 @@ class BillModel {
       this.multiKissanList,
       required this.note});
 
-  factory BillModel.fromJson(QueryDocumentSnapshot<Map<String, dynamic>> bill,
-      List<MultikissanModel>? kissanList) {
+  factory BillModel.fromJson(Map bill, List<MultikissanModel>? kissanList) {
     if (bill["isMultikissan"]) {
       return BillModel(
           invoiceno: bill["invoiceno"],
@@ -121,7 +123,9 @@ class BillModel {
           mtaxpercent: bill["mtaxpercent"],
           ot: bill["ot"],
           tcs: bill["tcs"],
+          tcspercent: bill["tcspercent"],
           tds: bill["tds"],
+          tdspercent: bill["tdspercent"],
           subtotal: bill["subtotal"],
           grandtotal: bill["grandtotal"],
           adminId: bill["adminId"],
@@ -171,6 +175,8 @@ class BillModel {
         mtaxpercent: bill["mtaxpercent"],
         ot: bill["ot"],
         tcs: bill["tcs"],
+        tcspercent: bill["tcspercent"],
+        tdspercent: bill["tdspercent"],
         tds: bill["tds"],
         subtotal: bill["subtotal"],
         grandtotal: bill["grandtotal"],
@@ -204,6 +210,8 @@ class BillModel {
         "ot": ot,
         "tcs": tcs,
         "tds": tds,
+        "tcspercent": tcspercent,
+        "tdspercent": tdspercent,
         "subtotal": subtotal,
         "grandtotal": grandtotal,
         "adminId": adminId,
@@ -253,6 +261,8 @@ class BillModel {
       "mtaxpercent": mtaxpercent,
       "ot": ot,
       "tcs": tcs,
+      "tcspercent": tcspercent,
+      "tdspercent": tdspercent,
       "tds": tds,
       "subtotal": subtotal,
       "grandtotal": grandtotal,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:form_validator/form_validator.dart';
 import 'package:intl/intl.dart';
 import 'package:kelawin/Models/user_model.dart';
 import 'package:kelawin/presentation/user_operations/pages/create_user.dart';
-import 'package:kelawin/utils/apputils.dart';
+import 'package:kelawin/viewmodel/otp_viewmodel/otp_operation_viewmodel.dart';
 
+import '../../../utils/apputils.dart';
 import '../../../viewmodel/usersCrudOperations/users_crud_operations.dart';
 
 class ReadUsers extends StatefulWidget {
@@ -14,7 +17,7 @@ class ReadUsers extends StatefulWidget {
 }
 
 class _ReadUsersState extends State<ReadUsers> {
-  bool _isLoading = true;
+  bool? _isLoading;
   late List<UserModel> allUsers;
   late List<UserModel> foundList;
   List<UserModel> tempFoundList = [];
@@ -35,14 +38,16 @@ class _ReadUsersState extends State<ReadUsers> {
   }
 
   Future _getUsers() async {
+    setState(() {
+      _isLoading = true;
+    });
     allUsers = await UsersCrudOperations().getAllUsersFromServer(context);
 
-    _isLoading = false;
     if (mounted) {
       setState(() {
         foundList = allUsers;
 
-        _isLoading = _isLoading;
+        _isLoading = false;
       });
     }
   }
@@ -57,7 +62,7 @@ class _ReadUsersState extends State<ReadUsers> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade300,
-      body: _isLoading
+      body: _isLoading!
           ? const Center(
               child: CircularProgressIndicator(
               backgroundColor: Colors.white,
@@ -94,7 +99,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                           borderRadius:
                                               BorderRadius.circular(5))),
                                   onPressed: () async {
-                                    showDialog(
+                                    await showDialog(
                                         barrierDismissible: false,
                                         context: context,
                                         builder: (context) {
@@ -102,6 +107,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                             toUpdate: false,
                                           );
                                         });
+                                    await _getUsers();
                                   },
                                   child: const Text(
                                     "Create User",
@@ -451,7 +457,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       (i + 1).toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -461,7 +467,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].userId.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -471,7 +477,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].name.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -481,7 +487,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].address,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -491,7 +497,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].city,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -501,7 +507,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].state.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -511,7 +517,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].phone.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -521,7 +527,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].email.toString(),
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
@@ -531,7 +537,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text(
+                                    child: SelectableText(
                                       foundList[i].role == "kissan"
                                           ? "NA"
                                           : foundList[i].company.toString(),
@@ -553,7 +559,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                                 borderRadius:
                                                     BorderRadius.circular(5))),
                                         onPressed: () async {
-                                          showDialog(
+                                          await showDialog(
                                               barrierDismissible: false,
                                               context: context,
                                               builder: (context) {
@@ -562,6 +568,7 @@ class _ReadUsersState extends State<ReadUsers> {
                                                   user: foundList[i],
                                                 );
                                               });
+                                          await _getUsers();
                                         },
                                         child: const Text(
                                           "EDIT",
@@ -572,14 +579,12 @@ class _ReadUsersState extends State<ReadUsers> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: IconButton(
                                           onPressed: () async {
-                                            await Apputils().showConfirmBox(
-                                                context,
-                                                'Are you sure you want to delete this user? deleting user will also delete khata and transactions of user!',
-                                                () async {
-                                              await UsersCrudOperations()
-                                                  .deleteUserFromServer(
-                                                      context, foundList[i]);
-                                            });
+                                            await OtpOperationViewmodel()
+                                                .sendOtp(
+                                                    context, "Ledger Deletion");
+                                            Navigator.of(context).pop();
+                                            showOtpDialog(
+                                                context, foundList[i]);
                                           },
                                           icon: const Icon(Icons.delete))),
                                 ])
@@ -630,4 +635,99 @@ Future<List<UserModel>> _searching(
   }
 
   return foundList;
+}
+
+void showOtpDialog(BuildContext context, UserModel user) {
+  TextEditingController otpController = TextEditingController();
+  bool isLoading = false;
+  showDialog(
+    context: context,
+    barrierDismissible: false, // Prevent closing by clicking outside
+    builder: (BuildContext context) {
+      return StatefulBuilder(builder: (context, setState) {
+        // Track loading state
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text('Enter OTP'),
+          content: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  readOnly: isLoading,
+                  controller: otpController,
+                  validator:
+                      ValidationBuilder().minLength(6).maxLength(6).build(),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  inputFormatters: [
+                    FilteringTextInputFormatter
+                        .digitsOnly, // Allow digits and a single decimal point
+                  ],
+                  cursorColor: Colors.grey,
+                  decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide:
+                            BorderSide(color: Colors.blue.shade700, width: 1),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        borderSide:
+                            const BorderSide(color: Colors.grey, width: 1),
+                      )),
+                ),
+              ),
+              if (isLoading) // Show loader when verifying
+                const Padding(
+                  padding: EdgeInsets.only(top: 0),
+                  child: CircularProgressIndicator(),
+                ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close popup
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                setState(() {
+                  isLoading = true; // Show loader
+                });
+                String userOtp = otpController.text;
+                String otp = await OtpOperationViewmodel().verifyOtp();
+                setState(() {
+                  isLoading = false; // Show loader
+                });
+                // Validate OTP here
+                if (otp == userOtp) {
+                  Navigator.of(context).pop();
+                  await Apputils().showConfirmBox(context,
+                      'Are you sure you want to delete this user? deleting user will also delete khata and transactions of user!',
+                      () async {
+                    await UsersCrudOperations()
+                        .deleteUserFromServer(context, user);
+                  });
+                } else {
+                  // Show an error message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Invalid OTP')));
+                }
+              },
+              child: Text(
+                'Verify',
+                style: TextStyle(color: Colors.blue.shade900),
+              ),
+            ),
+          ],
+        );
+      });
+    },
+  );
 }

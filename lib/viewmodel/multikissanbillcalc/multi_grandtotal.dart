@@ -34,6 +34,12 @@ class MultiGrandtotal extends ChangeNotifier {
   int tcspercent = 0;
   int tdspercent = 0;
 
+  TextEditingController hammaliControllerPercent =
+      TextEditingController(text: "15");
+
+  TextEditingController commissionControllerPercent =
+      TextEditingController(text: "20");
+
   List<MultikissanModel> resettleMentKissanList = [];
 
   void calc(double currentGross, double currentTare) {
@@ -201,7 +207,11 @@ class MultiGrandtotal extends ChangeNotifier {
                 .mtaxpercent,
             ot: Provider.of<MultiGrandtotal>(context, listen: false).ot,
             tcs: Provider.of<MultiGrandtotal>(context, listen: false).tcs,
+            tcspercent:
+                Provider.of<MultiGrandtotal>(context, listen: false).tcspercent,
             tds: Provider.of<MultiGrandtotal>(context, listen: false).tds,
+            tdspercent:
+                Provider.of<MultiGrandtotal>(context, listen: false).tdspercent,
             subtotal:
                 Provider.of<MultiGrandtotal>(context, listen: false).subTotal,
             grandtotal:
@@ -238,11 +248,43 @@ class MultiGrandtotal extends ChangeNotifier {
         "netwt": kissan.netwt,
         "lungar": kissan.lungar,
         "amount": kissan.amount,
+        "kelagroupCommissionPercent":
+            kissan.iskelagroup ? kissan.kelagroupCommissionPercent : 0,
+        "kelagroupHammaliPercent":
+            kissan.iskelagroup ? kissan.kelagroupHammaliPercent : 0,
+        "kelagroupMtaxPercent":
+            kissan.iskelagroup ? kissan.kelagroupMtaxPercent : 0,
         "iskelagroup": kissan.iskelagroup,
       };
 
       finalListOfMultikissan.add(multikissanmodel);
     }
     return finalListOfMultikissan;
+  }
+
+  void resetScreen(BuildContext context) {
+    final multiGrandtotalpro =
+        Provider.of<MultiGrandtotal>(context, listen: false);
+    multiGrandtotalpro.kissanAmount = 0;
+    multiGrandtotalpro.nettWett = 0;
+    multiGrandtotalpro.subTotal = 0;
+    multiGrandtotalpro.mtax = 0;
+    multiGrandtotalpro.hammali = 0;
+    multiGrandtotalpro.commission = 0;
+    multiGrandtotalpro.ot = 40;
+    multiGrandtotalpro.tcs = 0;
+    multiGrandtotalpro.tds = 0;
+
+    multiGrandtotalpro.hammalipercent = 20;
+    multiGrandtotalpro.commissionpercent = 15;
+    multiGrandtotalpro.mtaxpercent = 1;
+    multiGrandtotalpro.tcspercent = 0;
+    multiGrandtotalpro.tdspercent = 0;
+
+    multiGrandtotalpro.hammaliControllerPercent.text = "20";
+    multiGrandtotalpro.commissionControllerPercent.text = "15";
+    multiGrandtotalpro.grandTotal = 0;
+    multiGrandtotalpro.resettleMentKissanList.clear();
+    notifyListeners();
   }
 }

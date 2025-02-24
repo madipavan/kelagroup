@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:kelawin/Models/khata_model.dart';
@@ -329,6 +331,7 @@ class _CreateUserState extends State<CreateUser> {
                                               flex: 1,
                                               child: UserTextfield(
                                                 label: "Pincode",
+                                                isAmount: true,
                                                 validationBuilder:
                                                     ValidationBuilder(
                                                             requiredMessage: "")
@@ -418,6 +421,7 @@ class _CreateUserState extends State<CreateUser> {
                                             Expanded(
                                               flex: 3,
                                               child: UserTextfield(
+                                                isAmount: true,
                                                 validationBuilder:
                                                     ValidationBuilder(
                                                             requiredMessage: "")
@@ -558,6 +562,7 @@ class _CreateUserState extends State<CreateUser> {
                                             Expanded(
                                               flex: 3,
                                               child: UserTextfield(
+                                                isAmount: true,
                                                 label: "Aadhar",
                                                 validationBuilder:
                                                     ValidationBuilder(
@@ -580,6 +585,7 @@ class _CreateUserState extends State<CreateUser> {
                                             Expanded(
                                               flex: 3,
                                               child: UserTextfield(
+                                                isAmount: true,
                                                 label: "Pan Card",
                                                 validationBuilder:
                                                     ValidationBuilder(
@@ -857,10 +863,43 @@ class _CreateUserState extends State<CreateUser> {
                                                                 BorderRadius
                                                                     .circular(
                                                                         5))),
-                                                    onPressed: () {
+                                                    onPressed: () async {
                                                       if (_formkey.currentState!
                                                           .validate()) {
                                                         if (widget.toUpdate) {
+                                                          UsersCrudOperations()
+                                                              .updateUserOnServer(
+                                                            context,
+                                                            _getUserModel(
+                                                                userName.text,
+                                                                userPass.text,
+                                                                userPhone.text,
+                                                                userPincode
+                                                                    .text,
+                                                                _userRole,
+                                                                _userState,
+                                                                userAddress
+                                                                    .text,
+                                                                userCity.text,
+                                                                userCompany
+                                                                    .text,
+                                                                userEmail.text,
+                                                                userAadhar.text,
+                                                                userPan.text,
+                                                                int.parse(
+                                                                    commissionController
+                                                                        .text),
+                                                                int.parse(
+                                                                    hammaliController
+                                                                        .text),
+                                                                _branch,
+                                                                _ledgerGroup
+                                                                    .ledgerGroupId,
+                                                                note.text,
+                                                                userId: widget
+                                                                    .user!
+                                                                    .userId),
+                                                          );
                                                         } else {
                                                           UsersCrudOperations()
                                                               .addUserOnServer(
@@ -951,24 +990,24 @@ class _CreateUserState extends State<CreateUser> {
 }
 
 UserModel _getUserModel(
-  String name,
-  String password,
-  String phone,
-  String pincode,
-  String role,
-  String state,
-  String address,
-  String city,
-  String company,
-  String email,
-  String aadhar,
-  String panCard,
-  int commission,
-  int hammali,
-  String branch,
-  int ledgerGroupId,
-  String note,
-) {
+    String name,
+    String password,
+    String phone,
+    String pincode,
+    String role,
+    String state,
+    String address,
+    String city,
+    String company,
+    String email,
+    String aadhar,
+    String panCard,
+    int commission,
+    int hammali,
+    String branch,
+    int ledgerGroupId,
+    String note,
+    {int userId = 0}) {
   if (role != "kissan") {
     return UserModel(
       name: name,
@@ -981,7 +1020,7 @@ UserModel _getUserModel(
       city: city,
       company: company,
       email: email,
-      userId: 0,
+      userId: userId,
       aadhar: aadhar,
       panCard: panCard,
       branch: branch,

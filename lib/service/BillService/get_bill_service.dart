@@ -10,6 +10,7 @@ class GetBillService {
       QuerySnapshot<Map<String, dynamic>> bill = await firebase
           .collection("Bills")
           .where("invoiceno", isEqualTo: billno)
+          .limit(1)
           .get();
 
       if (bill.docs[0]["isMultikissan"]) {
@@ -22,9 +23,9 @@ class GetBillService {
         for (var element in subCollectionBill.docs) {
           temp.add(MultikissanModel.toJson(element.data()));
         }
-        return BillModel.fromJson(bill.docs[0], temp);
+        return BillModel.fromJson(bill.docs[0].data(), temp);
       } else {
-        return BillModel.fromJson(bill.docs[0], null);
+        return BillModel.fromJson(bill.docs[0].data(), null);
       }
     } on FirebaseException catch (e) {
       print(e);
@@ -54,9 +55,9 @@ class GetBillService {
           for (var element in subCollectionBill.docs) {
             temp.add(MultikissanModel.toJson(element.data()));
           }
-          allBills.add(BillModel.fromJson(bills.docs[i], temp));
+          allBills.add(BillModel.fromJson(bills.docs[i].data(), temp));
         } else {
-          allBills.add(BillModel.fromJson(bills.docs[i], null));
+          allBills.add(BillModel.fromJson(bills.docs[i].data(), null));
         }
       }
 

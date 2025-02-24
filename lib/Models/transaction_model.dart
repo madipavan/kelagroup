@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class TransactionModel {
   int transactionId;
   String transactionType;
+  String vocherType;
   String date;
   int khataId;
   int userId;
@@ -18,6 +19,7 @@ class TransactionModel {
       required this.khataId,
       required this.amount,
       required this.invoiceno,
+      required this.vocherType,
       this.time,
       this.paymentMode,
       this.receiverName,
@@ -28,6 +30,7 @@ class TransactionModel {
       "transactionId": transactionId,
       "date": date,
       "transactionType": transactionType,
+      "vocherType": vocherType,
       "amount": amount,
       "invoiceno": invoiceno,
       "khataId": khataId,
@@ -43,6 +46,7 @@ class TransactionModel {
     return TransactionModel(
         transactionId: transaction["transactionId"],
         transactionType: transaction["transactionType"],
+        vocherType: transaction["vocherType"],
         date: transaction["date"],
         khataId: transaction["khataId"],
         amount: transaction["amount"],

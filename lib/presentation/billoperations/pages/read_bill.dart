@@ -41,7 +41,7 @@ String _searcCatgory = "BillNo";
 class _ReadBillState extends State<ReadBill> {
   DateTime fromDate = DateTime.now();
   DateTime toDate = DateTime.now();
-  bool _isLoading = true;
+  bool? _isLoading;
   late List<BillModel> allBills;
   late List<BillModel> foundList;
   late List<BillModel> tempfoundList;
@@ -53,11 +53,17 @@ class _ReadBillState extends State<ReadBill> {
   }
 
   Future _getBills() async {
-    allBills = await GetBillFromServer().getAllbills();
-
-    _isLoading = false;
     if (mounted) {
       setState(() {
+        _isLoading = true;
+      });
+    }
+
+    allBills = await GetBillFromServer().getAllbills();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
         foundList = allBills;
         tempfoundList = foundList;
         _isLoading = _isLoading;
@@ -75,7 +81,7 @@ class _ReadBillState extends State<ReadBill> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade300,
-      body: _isLoading
+      body: _isLoading!
           ? const Center(
               child: CircularProgressIndicator(
               backgroundColor: Colors.white,
@@ -112,11 +118,14 @@ class _ReadBillState extends State<ReadBill> {
                                           borderRadius:
                                               BorderRadius.circular(5))),
                                   onPressed: () async {
-                                    Navigator.push(
+                                    await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                const CreateBill()));
+                                                const CreateBill(
+                                                  toUpdate: false,
+                                                )));
+                                    await _getBills();
                                   },
                                   child: const Text(
                                     "Create Bill",
@@ -696,7 +705,17 @@ class _ReadBillState extends State<ReadBill> {
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(5))),
-                                        onPressed: () async {},
+                                        onPressed: () async {
+                                          await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CreateBill(
+                                                        toUpdate: true,
+                                                        bill: foundList[i],
+                                                      )));
+                                          await _getBills();
+                                        },
                                         child: const Text(
                                           "EDIT",
                                           style: TextStyle(color: Colors.white),

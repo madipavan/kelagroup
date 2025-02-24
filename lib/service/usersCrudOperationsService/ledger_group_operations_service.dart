@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kelawin/Models/ledgergroup_model.dart';
+import 'package:synchronized/synchronized.dart';
 
 class LedgerGroupOperationsService {
   final firebase = FirebaseFirestore.instance;
@@ -55,14 +56,6 @@ class LedgerGroupOperationsService {
 
   Future addLedgerGroup(LedgergroupModel ledgerGroup) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> data = await firebase
-          .collection("LedgerGroups")
-          .orderBy("ledgerGroupId", descending: true)
-          .limit(1)
-          .get();
-
-      int newLedgerGroupId = data.docs[0]["ledgerGroupId"] + 1;
-      ledgerGroup.ledgerGroupId = newLedgerGroupId;
       Map<String, dynamic> ledgerGroupMap = ledgerGroup.toMap();
       await firebase.collection("LedgerGroups").add(ledgerGroupMap);
     } on FirebaseException catch (e) {
@@ -124,6 +117,46 @@ class LedgerGroupOperationsService {
       throw Exception("${e}Error while Deleting LedgerGroupType");
     } catch (e) {
       throw Exception("${e}Error while Deleting LedgerGroupType");
+    }
+  }
+
+  Future<int> generateUniqueLedgerId() async {
+    int newLedgerGroupId = 0;
+
+    try {
+      final lock = Lock();
+      await lock.synchronized(() async {
+        return await FirebaseFirestore.instance
+            .runTransaction((transaction) async {
+          final ledgerGroupIdCounterRef = FirebaseFirestore.instance
+              .collection('idCounters')
+              .doc("ledgerGroupIdCounter");
+          DocumentSnapshot counterDoc =
+              await transaction.get(ledgerGroupIdCounterRef);
+
+          int lastledgerGroupId =
+              900; // Default starting number if no bills exist
+
+          if (!counterDoc.exists) {
+            throw Exception(
+                "Counter document is missing! Initialize it first.");
+          } else {
+            lastledgerGroupId = counterDoc.exists
+                ? (counterDoc.get("ledgerGroupId") ?? lastledgerGroupId)
+                : lastledgerGroupId;
+            newLedgerGroupId = lastledgerGroupId + 1;
+            transaction.update(
+                ledgerGroupIdCounterRef, {"ledgerGroupId": newLedgerGroupId});
+          }
+
+          return newLedgerGroupId;
+        });
+      });
+      return newLedgerGroupId;
+    } on FirebaseException catch (e) {
+      throw Exception("${e}Error while creating userKhataId");
+    } catch (e) {
+      throw Exception("${e}Error while creating userkhataId");
     }
   }
 }

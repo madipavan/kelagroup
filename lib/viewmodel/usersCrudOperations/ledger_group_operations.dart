@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:kelawin/Models/ledgergroup_model.dart';
 import 'package:kelawin/service/usersCrudOperationsService/ledger_group_operations_service.dart';
 import 'package:kelawin/utils/apputils.dart';
 
 class LedgerGroupOperations {
+  StreamSubscription? _subscription;
   Future<List<String>> getLedgerGroupTypeFromServer() async {
     List<String> items = [];
     try {
@@ -57,6 +60,12 @@ class LedgerGroupOperations {
       BuildContext context, LedgergroupModel ledgerGroup) async {
     try {
       Apputils().loader(context);
+      cancelListeners();
+      int newLedgerGroupid =
+          await LedgerGroupOperationsService().generateUniqueLedgerId();
+      newLedgerGroupid != 0
+          ? ledgerGroup.ledgerGroupId = newLedgerGroupid
+          : throw Exception("LedgerGroupId is 0");
       await LedgerGroupOperationsService().addLedgerGroup(ledgerGroup);
       Apputils().transactionSuccess(context, 2, "LedgerGroup added!");
     } catch (e) {
@@ -76,5 +85,10 @@ class LedgerGroupOperations {
       Apputils().transactionUnsuccess(context, "$e");
       print("$e: deletion LedgerGroup failed!");
     }
+  }
+
+  void cancelListeners() {
+    _subscription?.cancel();
+    _subscription = null; // Prevents accidental re-use
   }
 }
